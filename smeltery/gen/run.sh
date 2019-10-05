@@ -1,1 +1,1 @@
-./gen.sh "../smeltry_spec.mcrl2" -vf
+./gen.sh "../smeltery_spec.mcrl2" -fv
