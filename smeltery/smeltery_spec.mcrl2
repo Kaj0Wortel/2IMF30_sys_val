@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5bb39ad744156756bbb9c34191e2ccf4771151b6
 sort Rail = struct rail(id: Nat); %main0 | main1 | main2 | main3 | blast | intersection | ref0 | ref1 |  ref2;
 sort Cart = struct cart(id: Nat, broken: Bool, reqBroken: Bool, unload: Bool, loc: Rail, empty: Bool);
 
@@ -29,6 +32,7 @@ act cartOnSegment: Cart #  Rail;
 proc
   CartProc(c: Cart) = sendCartForward(c);
 
+<<<<<<< HEAD
 init CartProc(cart1);
 =======
 %% Rail structure:
@@ -154,3 +158,6 @@ init
 
 
 >>>>>>> feature/gen
+=======
+init CartProc(cart1);
+>>>>>>> 5bb39ad744156756bbb9c34191e2ccf4771151b6
