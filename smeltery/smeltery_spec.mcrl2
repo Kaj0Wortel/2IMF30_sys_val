@@ -1,40 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 5bb39ad744156756bbb9c34191e2ccf4771151b6
-sort Rail = struct rail(id: Nat); %main0 | main1 | main2 | main3 | blast | intersection | ref0 | ref1 |  ref2;
-sort Cart = struct cart(id: Nat, broken: Bool, reqBroken: Bool, unload: Bool, loc: Rail, empty: Bool);
-
-glob cart0, cart1, cart2, cart3: Cart;
-glob rail: Rail;
-
-map forward: Cart # Rail -> Cart;
-map initCart: Nat -> Cart;
-map get_id: Cart -> Nat;
-
-var c: Cart;
-    r: Rail;
-    rId: Nat;
-    idx: Nat;
-    n: Nat;
-    br: Bool; rBr: Bool; unl: Bool; emp: Bool;
-
-
-eqn get_id(cart(idx, br, rBr, unl, r, emp)) = idx;
-var n: Nat;
-eqn initCart(n) = cart(n, false, false, false, rail(n), true);
-
-
-act sendCartForward: Cart;
-act sendCartBackward: Cart;
-act cartOnSegment: Cart #  Rail;
-
-proc
-  CartProc(c: Cart) = sendCartForward(c);
-
-<<<<<<< HEAD
-init CartProc(cart1);
-=======
 %% Rail structure:
 %%                   [/4-][-5|]
 %% [|0-][-1-][-2-][-3+][-6-][-7|]
@@ -157,7 +120,3 @@ init
 
 
 
->>>>>>> feature/gen
-=======
-init CartProc(cart1);
->>>>>>> 5bb39ad744156756bbb9c34191e2ccf4771151b6
