@@ -1,31 +1,122 @@
+%% Rail structure:
+%%                   [/4-][-5|]
+%% [|0-][-1-][-2-][-3+][-6-][-7|]
+%%                   [\8-][-9|]
+%% 
+%% Repair bays (bay, rail)          : (0, 0), (1, 5), (2, 7), (3, 9)
+%% Blast furnace (rail)             : (1)
+%% Refinaries (refinery, rail)      : (0, 4), (1, 6), (2, 8)
+%% Rail switch (rail)               : (3)
+%% Init cart positions (cart, rail) : (0, 0), (1, 1), (2, 2), (3, 3)
+
 sort Rail = struct rail(id: Nat); %main0 | main1 | main2 | main3 | blast | intersection | ref0 | ref1 |  ref2;
-sort Cart = struct cart(id: Nat, broken: Bool, reqBroken: Bool, unload: Bool, loc: Rail, empty: Bool);
-
-glob cart0, cart1, cart2, cart3: Cart;
-glob rail: Rail;
-
-map forward: Cart # Rail -> Cart;
-map initCart: Nat -> Cart;
-map get_id: Cart -> Nat;
-
-var c: Cart;
-    r: Rail;
-    rId: Nat;
-    idx: Nat;
-    n: Nat;
-    br: Bool; rBr: Bool; unl: Bool; emp: Bool;
+sort Cart = struct cart(id: Nat, loc: Rail, broken: Bool, maintain: Bool, unload: Bool, empty: Bool);
+sort Refinery = struct refinery(id: Nat);
 
 
-eqn get_id(cart(idx, br, rBr, unl, r, emp)) = idx;
+% Initalize mappings.
+map
+	% carts
+	get_id: Cart -> Nat;
+	get_rail: Cart -> Rail;
+    is_broken: Cart -> Bool;
+    needs_main: Cart -> Bool;
+	is_unloading: Cart -> Bool;
+    is_empty: Cart -> Bool;
+	init_cart: Nat # Nat -> Cart; % tmp function used to start in the exact same state when starting the model.
+	forward: Cart # Refinery -> Cart;
+	backward: Cart -> Cart;
+
+	% rails
+	get_id: Rail -> Nat;
+	allow_next: Rail # Refinery -> Bool;
+	next: Rail # Refinery -> Rail;
+	allow_prev: Rail -> Bool;
+	prev: Rail -> Rail;
+	allow_switch: Refinery -> Bool;
+	
+	% refineries
+	get_id: Refinery -> Nat;
+
+
+% Define globals.
+
+
+% Define cart equations.
 var n: Nat;
-eqn initCart(n) = cart(n, false, false, false, rail(n), true);
+	r: Rail;
+	br, main, unl, emp: Bool;
+eqn
+	get_id(cart(n, r, br, main, unl, emp)) = n;
+	get_rail(cart(n, r, br, main, unl, emp)) = r;
+	is_broken(cart(n, r, br, main, unl, emp)) = br;
+	needs_main(cart(n, r, br, main, unl, emp)) = main;
+	is_unloading(cart(n, r, br, main, unl, emp)) = unl;
+	is_empty(cart(n, r, br, main, unl, emp)) = emp;
+
+% Define refinery equations.
+var n: Nat;
+eqn
+	get_id(refinery(n)) = n;
+
+% Define rail equations.
+var n, r: Nat;
+	ref: Refinery;
+eqn
+	get_id(rail(n)) = n;
+	
+	allow_next(rail(n), refinery(r)) = ((n >= 0 && (n < 5 || n == 6 || n == 8))) && (r >= 0 && r <= 2);
+	next(rail(3), refinery(0)) = rail(4);
+	next(rail(3), refinery(1)) = rail(6);
+	next(rail(3), refinery(2)) = rail(8);
+	allow_next(rail(n), ref) && n != 3 -> next(rail(n), ref) = rail(n + 1);
+
+	allow_prev(rail(n)) = (n >= 1 && n <= 9);
+	n == 8 || n == 6 || n == 4 -> prev(rail(n)) = rail(3);
+	n != 8 && n != 6 && n != 4 && n != 0 -> prev(rail(n)) = rail(Int2Nat(n - 1));
 
 
-act sendCartForward: Cart;
-act sendCartBackward: Cart;
-act cartOnSegment: Cart #  Rail;
+% Define initCart mapping.
+var nId, rId: Nat;
+eqn
+	init_cart(nId, rId) = cart(nId, rail(rId), false, false, false, true);
+
+% Define forward and backward cart motions.
+var n: Nat;
+	r: Rail;
+	br, main, unl, emp: Bool;
+	ref: Refinery;
+eqn
+	forward(cart(n, r, br, main, unl, emp), ref) = cart(n, next(r, ref), br, main, unl, emp);
+	backward(cart(n, r, br, main, unl, emp)) = cart(n, prev(r), br, main, unl, emp);
+
+
+act
+	sendCartForward: Cart;
+	sendCartBackward: Cart;
+	cartOnSegment: Cart # Rail;
+
+	next, prev; % TMP
+	mswitch, cswitch, switch: Refinery;
+
 
 proc
-  CartProc(c: Cart) = sendCartForward(c);
+	CartProc(c: Cart, switch: Refinery) =
+			allow_next(get_rail(c), switch) -> next . CartProc(forward(c, switch), switch) +
+			allow_prev(get_rail(c)) -> prev . CartProc(backward(c), switch) +
+			sum n: Nat . cswitch(refinery(n)) . CartProc(c, refinery(n));
+	Main(switch: Refinery) = sum n: Nat . (n >= 0 && n <= 2 && n != get_id(switch)) -> (mswitch(refinery(n)) . Main(refinery(n)));
+	
 
-init CartProc(cart1);
+init
+	allow (
+		{ next, prev, switch },
+		comm (
+			{ cswitch | mswitch -> switch },
+			CartProc(init_cart(0, 0), refinery(2)) || Main(refinery(2))
+		)
+	);
+	
+
+
+
