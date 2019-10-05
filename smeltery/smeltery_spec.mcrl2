@@ -10,8 +10,9 @@
 %% Init cart positions (cart, rail) : (0, 0), (1, 1), (2, 2), (3, 3)
 
 sort Rail = struct rail(id: Nat); %main0 | main1 | main2 | main3 | blast | intersection | ref0 | ref1 |  ref2;
-sort Cart = struct cart(id: Nat, loc: Rail, broken: Bool, maintain: Bool, unload: Bool, empty: Bool);
+sort Cart = struct cart(id: Nat, loc: Rail, next: Rail, broken: Bool, maintain: Bool, unload: Bool, empty: Bool);
 sort Refinery = struct refinery(id: Nat);
+sort State = struct state_cons(cart0: Cart, cart1: Cart, cart2: Cart, cart3: Cart, ref0: Refinery, ref1: Refinery, ref2: Refinery, swtch: Refinery);
 
 
 % Initalize mappings.
@@ -19,13 +20,19 @@ map
 	% carts
 	get_id: Cart -> Nat;
 	get_rail: Cart -> Rail;
+	get_next: Cart -> Rail;
+	set_rail: Rail # Cart -> Cart;
+	set_next: Rail # Cart -> Cart;
+
     is_broken: Cart -> Bool;
     needs_main: Cart -> Bool;
 	is_unloading: Cart -> Bool;
     is_empty: Cart -> Bool;
-	init_cart: Nat # Nat -> Cart; % tmp function used to start in the exact same state when starting the model.
+
+	init_cart: Nat # Nat -> Cart;
 	forward: Cart # Refinery -> Cart;
 	backward: Cart -> Cart;
+	move_to_target: Cart -> Cart;
 
 	% rails
 	get_id: Rail -> Nat;
@@ -33,35 +40,36 @@ map
 	next: Rail # Refinery -> Rail;
 	allow_prev: Rail -> Bool;
 	prev: Rail -> Rail;
-	allow_switch: Refinery -> Bool;
+	allow_rail: Rail # Cart -> Bool;
 	
 	% refineries
 	get_id: Refinery -> Nat;
+	
+	% state
+	init_state: State;
+	get_cart: Nat # State -> Cart;
+	get_refinery: Nat # State -> Refinery;
+	get_switch: State -> Refinery;
 
-
-% Define globals.
-
-
-% Define cart equations.
-var n: Nat;
-	r: Rail;
-	br, main, unl, emp: Bool;
-eqn
-	get_id(cart(n, r, br, main, unl, emp)) = n;
-	get_rail(cart(n, r, br, main, unl, emp)) = r;
-	is_broken(cart(n, r, br, main, unl, emp)) = br;
-	needs_main(cart(n, r, br, main, unl, emp)) = main;
-	is_unloading(cart(n, r, br, main, unl, emp)) = unl;
-	is_empty(cart(n, r, br, main, unl, emp)) = emp;
+	set_cart: Nat # Cart # State -> State;
+	set_refinery: Nat # Refinery # State -> State;
+	set_switch: Refinery # State -> State;
+	
+	forward: Nat # State -> State;
+	backward: Nat # State -> State;
+	move_to_target: Nat # State -> State;
+	
 
 % Define refinery equations.
 var n: Nat;
 eqn
 	get_id(refinery(n)) = n;
 
+
 % Define rail equations.
 var n, r: Nat;
 	ref: Refinery;
+	c: Cart;
 eqn
 	get_id(rail(n)) = n;
 	
@@ -75,45 +83,104 @@ eqn
 	n == 8 || n == 6 || n == 4 -> prev(rail(n)) = rail(3);
 	n != 8 && n != 6 && n != 4 && n != 0 -> prev(rail(n)) = rail(Int2Nat(n - 1));
 
+	allow_rail(rail(r), c) = true;
 
-% Define initCart mapping.
-var nId, rId: Nat;
-eqn
-	init_cart(nId, rId) = cart(nId, rail(rId), false, false, false, true);
 
-% Define forward and backward cart motions.
-var n: Nat;
-	r: Rail;
+% Define cart equations.
+var n, rn: Nat;
+	r, nxt, rNew: Rail;
 	br, main, unl, emp: Bool;
 	ref: Refinery;
 eqn
-	forward(cart(n, r, br, main, unl, emp), ref) = cart(n, next(r, ref), br, main, unl, emp);
-	backward(cart(n, r, br, main, unl, emp)) = cart(n, prev(r), br, main, unl, emp);
+	get_id(cart(n, r, nxt, br, main, unl, emp)) = n;
+	get_rail(cart(n, r, nxt, br, main, unl, emp)) = r;
+	get_next(cart(n, r, nxt, br, main, unl, emp)) = nxt;
+	set_rail(rNew, cart(n, r, nxt, br, main, unl, emp)) = cart(n, rNew, nxt, br, main, unl, emp);
+	set_next(rNew, cart(n, r, nxt, br, main, unl, emp)) = cart(n, r, rNew, br, main, unl, emp);
+	is_broken(cart(n, r, nxt, br, main, unl, emp)) = br;
+	needs_main(cart(n, r, nxt, br, main, unl, emp)) = main;
+	is_unloading(cart(n, r, nxt, br, main, unl, emp)) = unl;
+	is_empty(cart(n, r, nxt, br, main, unl, emp)) = emp;
+
+	init_cart(n, rn) = cart(n, rail(rn), rail(rn), false, false, false, true);
+
+	forward(cart(n, r, nxt, br, main, unl, emp), ref) = cart(n, r, next(nxt, ref), br, main, unl, emp);
+	backward(cart(n, r, nxt, br, main, unl, emp)) = cart(n, r, prev(r), br, main, unl, emp);
+	move_to_target(cart(n, r, nxt, br, main, unl, emp)) = cart(n, nxt, nxt, br, main, unl, emp);
+
+% Define state equations.
+var c, c0, c1, c2, c3: Cart;
+	r, r0, r1, r2: Refinery;
+	sw: Refinery;
+	n: Nat;
+eqn
+	init_state = state_cons(init_cart(0, 0), init_cart(1, 1), init_cart(2, 2), init_cart(3, 3), refinery(0), refinery(1), refinery(2), refinery(1));
+
+	(n == 0) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c0;
+	(n == 1) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c1;
+	(n == 2) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c2;
+	(n == 3) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c3;
+	(n == 0) -> get_refinery(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r0;
+	(n == 1) -> get_refinery(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r1;
+	(n == 2) -> get_refinery(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r2;
+	get_switch(state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = sw;
+
+	(n == 0) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c, c1, c2, c3, r0, r1, r2, sw);
+	(n == 1) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c, c2, c3, r0, r1, r2, sw);
+	(n == 2) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c, c3, r0, r1, r2, sw);
+	(n == 3) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c, r0, r1, r2, sw);
+	(n == 0) -> set_refinery(n, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r, r1, r2, sw);
+	(n == 1) -> set_refinery(n, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r0, r, r2, sw);
+	(n == 2) -> set_refinery(n, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r0, r1, r, sw);
+	set_switch(r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r0, r1, r2, r);
+	
+	(n == 0) -> forward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(forward(c0, sw), c1, c2, c3, r0, r1, r2, sw);
+	(n == 1) -> forward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, forward(c1, sw), c2, c3, r0, r1, r2, sw);
+	(n == 2) -> forward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, forward(c2, sw), c3, r0, r1, r2, sw);
+	(n == 3) -> forward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, forward(c3, sw), r0, r1, r2, sw);
+	(n == 0) -> backward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(backward(c0), c1, c2, c3, r0, r1, r2, sw);
+	(n == 1) -> backward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, backward(c1), c2, c3, r0, r1, r2, sw);
+	(n == 2) -> backward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, backward(c2), c3, r0, r1, r2, sw);
+	(n == 3) -> backward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, backward(c3), r0, r1, r2, sw);
+	(n == 0) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(move_to_target(c0), c1, c2, c3, r0, r1, r2, sw);
+	(n == 1) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, move_to_target(c1), c2, c3, r0, r1, r2, sw);
+	(n == 2) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, move_to_target(c2), c3, r0, r1, r2, sw);
+	(n == 3) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, move_to_target(c3), r0, r1, r2, sw);
 
 
 act
-	sendCartForward: Cart;
-	sendCartBackward: Cart;
-	cartOnSegment: Cart # Rail;
+	mSendCartForward, cSendCartForward, sendCartForward: Nat # State;
+	mSendCartBackward, cSendCartBackward, sendCartBackward: Nat # State;
+	mCartOnSegment, cCartOnSegment, cartOnSegment: Cart # Rail;
+	switch: Refinery;
 
-	next, prev; % TMP
-	mswitch, cswitch, switch: Refinery;
-
-
+glob state: State;
 proc
-	CartProc(c: Cart, switch: Refinery) =
-			allow_next(get_rail(c), switch) -> next . CartProc(forward(c, switch), switch) +
-			allow_prev(get_rail(c)) -> prev . CartProc(backward(c), switch) +
-			sum n: Nat . cswitch(refinery(n)) . CartProc(c, refinery(n));
-	Main(switch: Refinery) = sum n: Nat . (n >= 0 && n <= 2 && n != get_id(switch)) -> (mswitch(refinery(n)) . Main(refinery(n)));
+	CartProc(num: Nat) =
+			sum s: State . cSendCartForward(num, s) . CartMove(forward(get_cart(num, s), get_switch(s))) +
+			sum s: State . cSendCartBackward(num, s) . CartMove(backward(get_cart(num, s)));
+	CartMove(c: Cart) = cCartOnSegment(c, get_next(c)) . CartProc(get_id(c));
 	
+	Main(s: State) =
+			sum n: Nat . (n >= 0 && n < 4 && allow_next(get_rail(get_cart(n, s)), get_switch(s))) -> mSendCartForward(n, s) . Main(forward(n, s)) + 
+			sum n: Nat . (n >= 0 && n < 4 && allow_prev(get_rail(get_cart(n, s)))) -> mSendCartBackward(n, s) . Main(backward(n, s)) + 
+			sum n: Nat . sum r: Rail . (n >= 0 && n < 4) -> mCartOnSegment(get_cart(n, s), get_next(get_cart(n, s))) . Main(move_to_target(n, s)) + 
+			sum n: Nat . (n >= 0 && n < 3 && n != get_id(get_switch(s))) -> (switch(refinery(n)) . Main(set_switch(refinery(n), s)));
+
 
 init
 	allow (
-		{ next, prev, switch },
-		comm (
-			{ cswitch | mswitch -> switch },
-			CartProc(init_cart(0, 0), refinery(2)) || Main(refinery(2))
+		{ sendCartForward, sendCartBackward, cartOnSegment, switch },
+		comm ({
+				mSendCartForward | cSendCartForward -> sendCartForward,
+				mSendCartBackward | cSendCartBackward -> sendCartBackward,
+				mCartOnSegment | cCartOnSegment -> cartOnSegment
+			},
+			Main(init_state) ||
+				CartProc(0) ||
+				CartProc(1) ||
+				CartProc(2) ||
+				CartProc(3)
 		)
 	);
 	
