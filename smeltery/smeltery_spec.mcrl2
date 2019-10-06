@@ -12,12 +12,13 @@
 sort Rail = struct rail(id: Nat);
 sort Switch = struct switch(id: Nat);
 sort Cart = struct cart(id: Nat, loc: Rail, target: Rail, broken: Bool, maintain: Bool, unload: Bool, empty: Bool);
-sort Refinery = struct refinery(id: Nat);
+sort Refinery = struct refinery(id: Nat, req: Bool, broken: Bool);
 sort State = struct state_cons(cart0: Cart, cart1: Cart, cart2: Cart, cart3: Cart, ref0: Refinery, ref1: Refinery, ref2: Refinery, switch: Switch);
 
 
 % Initalize mappings.
 map
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% Carts
 	% Gets the ID of the cart.
 	get_id: Cart -> Nat;
@@ -25,11 +26,6 @@ map
 	get_rail: Cart -> Rail;
 	% Gets the target of the cart.
 	get_target: Cart -> Rail;
-	% Sets the curent position of the cart.
-	set_rail: Rail # Cart -> Cart;
-	% Sets the target of the cart.
-	set_target: Rail # Cart -> Cart;
-	
 	% Returns true if the cart is broken. False otherwise.
     is_broken: Cart -> Bool;
 	% Returns true if the cart needs maintenance. False otherwise.
@@ -39,6 +35,20 @@ map
 	% Returns true if the cart is empty. False otherwise.
     is_empty: Cart -> Bool;
 	
+	% Sets the curent position of the cart.
+	set_rail: Rail # Cart -> Cart;
+	% Sets the target of the cart.
+	set_target: Rail # Cart -> Cart;
+	% Sets whether the cart is broken.
+	set_broken: Bool # Cart -> Cart;
+	% Sets whether the cart requests maintenance.
+	set_maintain: Bool # Cart -> Cart;
+	% Sets whether the cart is unloading.
+	set_unloading: Bool # Cart -> Cart;
+	% Sets whether the cart is empty.
+	set_empty: Bool # Cart -> Cart;
+	
+	% Lazy initializer for a cart.
 	init_cart: Nat # Nat -> Cart;
 	% Sets the target of the cart one position forward relative to the current position.
 	forward: Cart # Switch -> Cart;
@@ -47,12 +57,14 @@ map
 	% Sets the current location of the cart to the value of the target of the cart.
 	move_to_target: Cart -> Cart;
 	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% Switch
-	% Initializes the switch.
+	% Lazy initializer for a switch.
 	init_switch: Switch;
 	% Gets the ID of the switch.
 	get_id: Switch -> Nat;
 	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% Rails
 	% Gets the ID of the rail.
 	get_id: Rail -> Nat;
@@ -65,12 +77,28 @@ map
 	% Returns the previous rail segment of the given rail segment.
 	prev: Rail -> Rail;
 	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% Refineries
+	% Lazy initializer for a refinery.
+	init_refinery: Nat -> Refinery;
 	% Gets the ID of the refinery.
 	get_id: Refinery -> Nat;
+	% Whether the refinery requests iron.
+	has_request: Refinery -> Bool;
+	% Whether the refinery is broken.
+	is_broken: Refinery -> Bool;
 	
+	% Sets whether the refinery has a request.
+	set_request: Bool # Refinery -> Refinery;
+	% Sets whether the refinery is broken.
+	set_broken: Bool # Refinery -> Refinery;
+	
+	% Returns the rail segment the refinery is located at.
+	get_rail: Refinery -> Rail;
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% State
-	% Initializes the state.
+	% Lazy initializer for a state.
 	init_state: State;
 	% Gets the cart at the given position.
 	get_cart: Nat # State -> Cart;
@@ -100,8 +128,19 @@ map
 
 % Define refinery equations.
 var n: Nat;
+	r, b, new: Bool;
 eqn
-	get_id(refinery(n)) = n;
+	get_id(refinery(n, r, b)) = n;
+	has_request(refinery(n, r, b)) = r;
+	is_broken(refinery(n, r, b)) = b;
+	init_refinery(n) = refinery(n, false, false);
+	
+	set_request(new, refinery(n, r, b)) = refinery(n, new, b);
+	set_broken(new, refinery(n, r, b)) = refinery(n, r, new);
+	
+	get_rail(refinery(0, r, b)) = rail(4);
+	get_rail(refinery(1, r, b)) = rail(6);
+	get_rail(refinery(2, r, b)) = rail(8);
 
 
 % Define rail equations.
@@ -121,30 +160,33 @@ eqn
 	n == 8 || n == 6 || n == 4 -> prev(rail(n)) = rail(3);
 	n != 8 && n != 6 && n != 4 && n != 0 -> prev(rail(n)) = rail(Int2Nat(n - 1));
 
-%	allow_rail(rail(n), c) = true;
-
 
 % Define cart equations.
 var n, rn: Nat;
 	r, trgt, rNew: Rail;
-	br, main, unl, emp: Bool;
+	br, main, unl, emp, bNew: Bool;
 	sw: Switch;
 eqn
 	get_id(cart(n, r, trgt, br, main, unl, emp)) = n;
 	get_rail(cart(n, r, trgt, br, main, unl, emp)) = r;
 	get_target(cart(n, r, trgt, br, main, unl, emp)) = trgt;
-	set_rail(rNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, rNew, trgt, br, main, unl, emp);
-	set_target(rNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, rNew, br, main, unl, emp);
 	is_broken(cart(n, r, trgt, br, main, unl, emp)) = br;
 	needs_main(cart(n, r, trgt, br, main, unl, emp)) = main;
 	is_unloading(cart(n, r, trgt, br, main, unl, emp)) = unl;
 	is_empty(cart(n, r, trgt, br, main, unl, emp)) = emp;
-
+	
 	init_cart(n, rn) = cart(n, rail(rn), rail(rn), false, false, false, true);
-
+	
 	forward(cart(n, r, trgt, br, main, unl, emp), sw) = cart(n, r, next(r, sw), br, main, unl, emp);
 	backward(cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, prev(r), br, main, unl, emp);
 	move_to_target(cart(n, r, trgt, br, main, unl, emp)) = cart(n, trgt, trgt, br, main, unl, emp);
+	
+	set_rail(rNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, rNew, trgt, br, main, unl, emp);
+	set_target(rNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, rNew, br, main, unl, emp);
+	set_broken(bNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, trgt, bNew, main, unl, emp);
+	set_maintain(bNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, trgt, br, bNew, unl, emp);
+	set_unloading(bNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, trgt, br, main, bNew, emp);
+	set_empty(bNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, trgt, br, main, unl, bNew);
 
 
 % Define switch equations.
@@ -162,75 +204,92 @@ var c, c0, c1, c2, c3: Cart;
 	rl: Rail;
 	st: State;
 eqn
-	init_state = state_cons(init_cart(0, 0), init_cart(1, 1), init_cart(2, 2), init_cart(3, 3), refinery(0), refinery(1), refinery(2), init_switch);
+	init_state = state_cons(init_cart(0, 0), init_cart(1, 1), init_cart(2, 2), init_cart(3, 3), init_refinery(0), init_refinery(1), init_refinery(2), init_switch);
 	
-	(n == 0) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c0;
-	(n == 1) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c1;
-	(n == 2) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c2;
-	(n == 3) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c3;
-	(n == 0) -> get_refinery(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r0;
-	(n == 1) -> get_refinery(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r1;
-	(n == 2) -> get_refinery(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r2;
+	get_cart(0, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c0;
+	get_cart(1, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c1;
+	get_cart(2, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c2;
+	get_cart(3, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c3;
+	get_refinery(0, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r0;
+	get_refinery(1, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r1;
+	get_refinery(2, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r2;
 	get_switch(state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = sw;
 	
-	(n == 0) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c, c1, c2, c3, r0, r1, r2, sw);
-	(n == 1) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c, c2, c3, r0, r1, r2, sw);
-	(n == 2) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c, c3, r0, r1, r2, sw);
-	(n == 3) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c, r0, r1, r2, sw);
-	(n == 0) -> set_refinery(n, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r, r1, r2, sw);
-	(n == 1) -> set_refinery(n, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r0, r, r2, sw);
-	(n == 2) -> set_refinery(n, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r0, r1, r, sw);
+	set_cart(0, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c, c1, c2, c3, r0, r1, r2, sw);
+	set_cart(1, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c, c2, c3, r0, r1, r2, sw);
+	set_cart(2, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c, c3, r0, r1, r2, sw);
+	set_cart(3, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c, r0, r1, r2, sw);
+	set_refinery(0, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r, r1, r2, sw);
+	set_refinery(1, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r0, r, r2, sw);
+	set_refinery(2, r, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r0, r1, r, sw);
 	set_switch(s, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, c3, r0, r1, r2, s);
 	
-	(n == 0) -> forward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(forward(c0, sw), c1, c2, c3, r0, r1, r2, sw);
-	(n == 1) -> forward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, forward(c1, sw), c2, c3, r0, r1, r2, sw);
-	(n == 2) -> forward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, forward(c2, sw), c3, r0, r1, r2, sw);
-	(n == 3) -> forward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, forward(c3, sw), r0, r1, r2, sw);
-	(n == 0) -> backward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(backward(c0), c1, c2, c3, r0, r1, r2, sw);
-	(n == 1) -> backward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, backward(c1), c2, c3, r0, r1, r2, sw);
-	(n == 2) -> backward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, backward(c2), c3, r0, r1, r2, sw);
-	(n == 3) -> backward(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, backward(c3), r0, r1, r2, sw);
-	(n == 0) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(move_to_target(c0), c1, c2, c3, r0, r1, r2, sw);
-	(n == 1) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, move_to_target(c1), c2, c3, r0, r1, r2, sw);
-	(n == 2) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, move_to_target(c2), c3, r0, r1, r2, sw);
-	(n == 3) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, move_to_target(c3), r0, r1, r2, sw);
+	forward(0, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(forward(c0, sw), c1, c2, c3, r0, r1, r2, sw);
+	forward(1, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, forward(c1, sw), c2, c3, r0, r1, r2, sw);
+	forward(2, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, forward(c2, sw), c3, r0, r1, r2, sw);
+	forward(3, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, forward(c3, sw), r0, r1, r2, sw);
+	backward(0, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(backward(c0), c1, c2, c3, r0, r1, r2, sw);
+	backward(1, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, backward(c1), c2, c3, r0, r1, r2, sw);
+	backward(2, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, backward(c2), c3, r0, r1, r2, sw);
+	backward(3, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, backward(c3), r0, r1, r2, sw);
+	move_to_target(0, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(move_to_target(c0), c1, c2, c3, r0, r1, r2, sw);
+	move_to_target(1, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, move_to_target(c1), c2, c3, r0, r1, r2, sw);
+	move_to_target(2, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, move_to_target(c2), c3, r0, r1, r2, sw);
+	move_to_target(3, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, move_to_target(c3), r0, r1, r2, sw);
 	
 	allow_movement(n, rl, st) = forall num: Nat . (num >= 0 && num < 4) => (
             num == n || (get_rail(get_cart(num, st)) != rl && get_target(get_cart(num, st)) != rl)
     );
 	
-	allow_switch(st) = forall num: Nat . (num >= 0 && num < 4) => (
-			get_rail(get_cart(num, st)) != rail(3) && get_target(get_cart(num, st)) != rail(3)
+	allow_switch(st) = forall crt: Nat . (crt >= 0 && crt < 4) => (
+			get_rail(get_cart(crt, st)) != rail(3) && get_target(get_cart(crt, st)) != rail(3)
 	);
 
 
 act
+	% Cart
 	mSendCartForward, cSendCartForward, sendCartForward: Nat # Cart # Switch;
 	mSendCartBackward, cSendCartBackward, sendCartBackward: Nat # Cart;
 	mCartOnSegment, cCartOnSegment, cartOnSegment: Cart # Rail;
+	% Refinery
+	mRequestIron, rRequestIron, requestIron: Nat # Refinery;
+	% Switch
 	switchRail: Switch;
 
 
-glob state: State;
 proc
 	%%%%%%%%%%%%%%%%%%%%%
 	%% Cart procedures %%
 	%%%%%%%%%%%%%%%%%%%%%
 	% Main procedure of a cart.
 	CartProc(num: Nat) =
-			sum c: Cart . sum sw: Switch . cSendCartForward(num, c, sw) . SignalCartMoved(forward(c, sw)) +
-			sum c: Cart . cSendCartBackward(num, c) . SignalCartMoved(backward(c));
+			sum c: Cart . (get_id(c) == num) -> (
+				sum sw: Switch . cSendCartForward(num, c, sw) . SignalCartMoved(forward(c, sw)) +
+				cSendCartBackward(num, c) . SignalCartMoved(backward(c))
+			);
 	
-	% Procedure to notify the main system that a cart has moved.
+	% Procedure to signal the main system that a cart has moved.
 	SignalCartMoved(c: Cart) = cCartOnSegment(c, get_target(c)) . CartProc(get_id(c));
+	
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%
+	%% Refinery procedures %%
+	%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Main procedure of the refineries.
+	RefProc(num: Nat) = sum r: Refinery . (get_id(r) == num) -> SignalRequest(r);
+	
+	% Procedure to signal the main system that a refinery requests iron.
+	SignalRequest(r: Refinery) = (!is_broken(r) && !has_request(r)) -> (rRequestIron(get_id(r), r) . RefProc(get_id(r)));
+	
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% Main system procedures %%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Main procedure of the system.
 	MainProc(s: State) =
-			sum cID: Nat . (cID >= 0 && cID < 4) -> (MoveCartForward(s, cID) + MoveCartBackward(s, cID) + DetectCartMoved(s, cID)) +
-			sum n: Nat . (n >= 0 && n < 3) -> MoveSwitch(s, n);
+			sum cID: Nat . (cID < 4) -> (MoveCartForward(s, cID) + MoveCartBackward(s, cID) + DetectCartMoved(s, cID)) +
+			sum sID: Nat . (sID < 3) -> MoveSwitch(s, sID) +
+			sum rID: Nat . (rID < 3) -> DetectRequest(s, get_refinery(rID, s));
 	
 	% Procedure to move the cart with the given ID one step forward.
 	MoveCartForward(s: State, cID: Nat) = (allow_next(get_rail(get_cart(cID, s)), get_switch(s)) &&
@@ -245,27 +304,32 @@ proc
 	% Procedure to detect movement from a cart.
 	DetectCartMoved(s: State, cID: Nat) = mCartOnSegment(get_cart(cID, s), get_target(get_cart(cID, s))) . MainProc(move_to_target(cID, s));
 	
+	% Procedure to detect a request of a refinery.
+	DetectRequest(s: State, ref: Refinery) = mRequestIron(get_id(ref), ref) . MainProc(set_refinery(get_id(ref), set_request(true, ref), s));
+	
 	% Procedure to move the rail switch.
-	MoveSwitch(s: State, n: Nat) = (allow_switch(s) && n != get_id(get_switch(s)))
-				-> (switchRail(switch(n)) . MainProc(set_switch(switch(n), s)));
+	MoveSwitch(s: State, sID: Nat) = (allow_switch(s) && sID != get_id(get_switch(s)))
+				-> (switchRail(switch(sID)) . MainProc(set_switch(switch(sID), s)));
 
 
 init
 	allow (
-		{ sendCartForward, sendCartBackward, cartOnSegment, switchRail },
+		{ sendCartForward, sendCartBackward, cartOnSegment, switchRail, requestIron },
 		comm ({
 				mSendCartForward | cSendCartForward -> sendCartForward,
 				mSendCartBackward | cSendCartBackward -> sendCartBackward,
-				mCartOnSegment | cCartOnSegment -> cartOnSegment
+				mCartOnSegment | cCartOnSegment -> cartOnSegment,
+				mRequestIron | rRequestIron -> requestIron
 			},
 			MainProc(init_state) ||
 				CartProc(0) ||
 				CartProc(1) ||
 				CartProc(2) ||
-				CartProc(3)
+				CartProc(3) ||
+				RefProc(0) ||
+				RefProc(1) ||
+				RefProc(2)
 		)
 	);
-	
-
 
 
