@@ -94,6 +94,8 @@ map
 	move_to_target: Nat # State -> State;
 	% Whether the next rail is free for the given cart
 	allow_movement: Nat # Rail # State -> Bool;
+	% Whether the rail switch is allowed to be used.
+	allow_switch: State -> Bool;
 	
 
 % Define refinery equations.
@@ -196,6 +198,10 @@ eqn
 	allow_movement(n, rl, st) = forall num: Nat . (num >= 0 && num < 4) => (
             num == n || (get_rail(get_cart(num, st)) != rl && get_target(get_cart(num, st)) != rl)
     );
+	
+	allow_switch(st) = forall num: Nat . (num >= 0 && num < 4) => (
+			get_rail(get_cart(num, st)) != rail(3) && get_target(get_cart(num, st)) != rail(3)
+	);
 
 
 act
@@ -203,7 +209,6 @@ act
 	mSendCartBackward, cSendCartBackward, sendCartBackward: Nat # Cart;
 	mCartOnSegment, cCartOnSegment, cartOnSegment: Cart # Rail;
 	switchRail: Switch;
-	test, skip, cont;
 
 
 glob state: State;
@@ -223,7 +228,7 @@ proc
 	%% Main system procedures %%
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Main procedure of the system.
-	MainProc(s: State) = Test(s) + 
+	MainProc(s: State) =
 			sum cID: Nat . (cID >= 0 && cID < 4) -> (MoveCartForward(s, cID) + MoveCartBackward(s, cID) + DetectCartMoved(s, cID)) +
 			sum n: Nat . (n >= 0 && n < 3) -> MoveSwitch(s, n);
 	
@@ -241,14 +246,13 @@ proc
 	DetectCartMoved(s: State, cID: Nat) = mCartOnSegment(get_cart(cID, s), get_target(get_cart(cID, s))) . MainProc(move_to_target(cID, s));
 	
 	% Procedure to move the rail switch.
-	MoveSwitch(s: State, n: Nat) = (n != get_id(get_switch(s)))
+	MoveSwitch(s: State, n: Nat) = (allow_switch(s) && n != get_id(get_switch(s)))
 				-> (switchRail(switch(n)) . MainProc(set_switch(switch(n), s)));
-	
-	Test(s: State) = test . (skip + (allow_movement(3, rail(4), s)) -> cont) . MainProc(s);
+
 
 init
 	allow (
-		{ sendCartForward, sendCartBackward, cartOnSegment, switchRail, test, skip, cont },
+		{ sendCartForward, sendCartBackward, cartOnSegment, switchRail },
 		comm ({
 				mSendCartForward | cSendCartForward -> sendCartForward,
 				mSendCartBackward | cSendCartBackward -> sendCartBackward,
