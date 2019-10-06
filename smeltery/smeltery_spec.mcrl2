@@ -11,7 +11,7 @@
 
 sort Rail = struct rail(id: Nat);
 sort Switch = struct switch(id: Nat);
-sort Cart = struct cart(id: Nat, loc: Rail, next: Rail, broken: Bool, maintain: Bool, unload: Bool, empty: Bool);
+sort Cart = struct cart(id: Nat, loc: Rail, target: Rail, broken: Bool, maintain: Bool, unload: Bool, empty: Bool);
 sort Refinery = struct refinery(id: Nat);
 sort State = struct state_cons(cart0: Cart, cart1: Cart, cart2: Cart, cart3: Cart, ref0: Refinery, ref1: Refinery, ref2: Refinery, switch: Switch);
 
@@ -19,56 +19,81 @@ sort State = struct state_cons(cart0: Cart, cart1: Cart, cart2: Cart, cart3: Car
 % Initalize mappings.
 map
 	%% Carts
+	% Gets the ID of the cart.
 	get_id: Cart -> Nat;
+	% Gets the current position of the cart.
 	get_rail: Cart -> Rail;
-	get_next: Cart -> Rail;
+	% Gets the target of the cart.
+	get_target: Cart -> Rail;
+	% Sets the curent position of the cart.
 	set_rail: Rail # Cart -> Cart;
-	set_next: Rail # Cart -> Cart;
+	% Sets the target of the cart.
+	set_target: Rail # Cart -> Cart;
 	
+	% Returns true if the cart is broken. False otherwise.
     is_broken: Cart -> Bool;
+	% Returns true if the cart needs maintenance. False otherwise.
     needs_main: Cart -> Bool;
+	% Returns true if the cart is unloading. False otherwise.
 	is_unloading: Cart -> Bool;
+	% Returns true if the cart is empty. False otherwise.
     is_empty: Cart -> Bool;
 	
 	init_cart: Nat # Nat -> Cart;
+	% Sets the target of the cart one position forward relative to the current position.
 	forward: Cart # Switch -> Cart;
+	% Sets the target of the cart one position backward relative to the current position.
 	backward: Cart -> Cart;
+	% Sets the current location of the cart to the value of the target of the cart.
 	move_to_target: Cart -> Cart;
 	
 	%% Switch
+	% Initializes the switch.
 	init_switch: Switch;
+	% Gets the ID of the switch.
 	get_id: Switch -> Nat;
 	
 	%% Rails
 	% Gets the ID of the rail.
 	get_id: Rail -> Nat;
-	% Whether moving the cart forward is allowed, ignoring other carts.
+	% Whether the next rail segment exists.
 	allow_next: Rail # Switch -> Bool;
-	% Set the target of the cart to the next rail segment.
+	% Returns the next rail segment of the given rail segment.
 	next: Rail # Switch -> Rail;
-	% Whether moving the cart backward is allowed, ignoring other carts.
+	% Whether the previous rail segment exists.
 	allow_prev: Rail -> Bool;
-	% Set the target of the cart to the previous rail segment.
+	% Returns the previous rail segment of the given rail segment.
 	prev: Rail -> Rail;
-	% Whether the next rail is free for the given cart
-	%allow_rail: Rail # Cart -> Bool;
 	
 	%% Refineries
+	% Gets the ID of the refinery.
 	get_id: Refinery -> Nat;
 	
 	%% State
+	% Initializes the state.
 	init_state: State;
+	% Gets the cart at the given position.
 	get_cart: Nat # State -> Cart;
+	% Gets the refinery at the given position.
 	get_refinery: Nat # State -> Refinery;
+	% Gets the switch.
 	get_switch: State -> Switch;
 	
+	% Sets the cart at the position with the given ID.
 	set_cart: Nat # Cart # State -> State;
+	% Set the refinery at the position with the given ID.
 	set_refinery: Nat # Refinery # State -> State;
+	% Sets the switch.
 	set_switch: Switch # State -> State;
 	
+	% Sets the target of the cart with the given ID one position forward relative to the current position.
 	forward: Nat # State -> State;
+	% Sets the target of the cart with the given ID one position backward relative to the current position.
 	backward: Nat # State -> State;
+	% Sets the current location of the cart with the given ID to the value of the target of the cart.
 	move_to_target: Nat # State -> State;
+	% Whether the next rail is free for the given cart
+	allow_movement: Nat # Rail # State -> Bool;
 	
 
 % Define refinery equations.
@@ -99,25 +124,25 @@ eqn
 
 % Define cart equations.
 var n, rn: Nat;
-	r, nxt, rNew: Rail;
+	r, trgt, rNew: Rail;
 	br, main, unl, emp: Bool;
 	sw: Switch;
 eqn
-	get_id(cart(n, r, nxt, br, main, unl, emp)) = n;
-	get_rail(cart(n, r, nxt, br, main, unl, emp)) = r;
-	get_next(cart(n, r, nxt, br, main, unl, emp)) = nxt;
-	set_rail(rNew, cart(n, r, nxt, br, main, unl, emp)) = cart(n, rNew, nxt, br, main, unl, emp);
-	set_next(rNew, cart(n, r, nxt, br, main, unl, emp)) = cart(n, r, rNew, br, main, unl, emp);
-	is_broken(cart(n, r, nxt, br, main, unl, emp)) = br;
-	needs_main(cart(n, r, nxt, br, main, unl, emp)) = main;
-	is_unloading(cart(n, r, nxt, br, main, unl, emp)) = unl;
-	is_empty(cart(n, r, nxt, br, main, unl, emp)) = emp;
+	get_id(cart(n, r, trgt, br, main, unl, emp)) = n;
+	get_rail(cart(n, r, trgt, br, main, unl, emp)) = r;
+	get_target(cart(n, r, trgt, br, main, unl, emp)) = trgt;
+	set_rail(rNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, rNew, trgt, br, main, unl, emp);
+	set_target(rNew, cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, rNew, br, main, unl, emp);
+	is_broken(cart(n, r, trgt, br, main, unl, emp)) = br;
+	needs_main(cart(n, r, trgt, br, main, unl, emp)) = main;
+	is_unloading(cart(n, r, trgt, br, main, unl, emp)) = unl;
+	is_empty(cart(n, r, trgt, br, main, unl, emp)) = emp;
 
 	init_cart(n, rn) = cart(n, rail(rn), rail(rn), false, false, false, true);
 
-	forward(cart(n, r, nxt, br, main, unl, emp), sw) = cart(n, r, next(nxt, sw), br, main, unl, emp);
-	backward(cart(n, r, nxt, br, main, unl, emp)) = cart(n, r, prev(r), br, main, unl, emp);
-	move_to_target(cart(n, r, nxt, br, main, unl, emp)) = cart(n, nxt, nxt, br, main, unl, emp);
+	forward(cart(n, r, trgt, br, main, unl, emp), sw) = cart(n, r, next(r, sw), br, main, unl, emp);
+	backward(cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, prev(r), br, main, unl, emp);
+	move_to_target(cart(n, r, trgt, br, main, unl, emp)) = cart(n, trgt, trgt, br, main, unl, emp);
 
 
 % Define switch equations.
@@ -132,9 +157,11 @@ var c, c0, c1, c2, c3: Cart;
 	r, r0, r1, r2: Refinery;
 	s, sw: Switch;
 	n: Nat;
+	rl: Rail;
+	st: State;
 eqn
 	init_state = state_cons(init_cart(0, 0), init_cart(1, 1), init_cart(2, 2), init_cart(3, 3), refinery(0), refinery(1), refinery(2), init_switch);
-
+	
 	(n == 0) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c0;
 	(n == 1) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c1;
 	(n == 2) -> get_cart(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c2;
@@ -143,7 +170,7 @@ eqn
 	(n == 1) -> get_refinery(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r1;
 	(n == 2) -> get_refinery(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = r2;
 	get_switch(state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = sw;
-
+	
 	(n == 0) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c, c1, c2, c3, r0, r1, r2, sw);
 	(n == 1) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c, c2, c3, r0, r1, r2, sw);
 	(n == 2) -> set_cart(n, c, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c, c3, r0, r1, r2, sw);
@@ -165,6 +192,10 @@ eqn
 	(n == 1) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, move_to_target(c1), c2, c3, r0, r1, r2, sw);
 	(n == 2) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, move_to_target(c2), c3, r0, r1, r2, sw);
 	(n == 3) -> move_to_target(n, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = state_cons(c0, c1, c2, move_to_target(c3), r0, r1, r2, sw);
+	
+	allow_movement(n, rl, st) = forall num: Nat . (num >= 0 && num < 4) => (
+            num == n || (get_rail(get_cart(num, st)) != rl && get_target(get_cart(num, st)) != rl)
+    );
 
 
 act
@@ -172,34 +203,58 @@ act
 	mSendCartBackward, cSendCartBackward, sendCartBackward: Nat # Cart;
 	mCartOnSegment, cCartOnSegment, cartOnSegment: Cart # Rail;
 	switchRail: Switch;
+	test, skip, cont;
+
 
 glob state: State;
 proc
+	%%%%%%%%%%%%%%%%%%%%%
+	%% Cart procedures %%
+	%%%%%%%%%%%%%%%%%%%%%
+	% Main procedure of a cart.
 	CartProc(num: Nat) =
-			sum c: Cart . sum sw: Switch . cSendCartForward(num, c, sw) . CartMove(forward(c, sw)) +
-			sum c: Cart . cSendCartBackward(num, c) . CartMove(backward(c));
-	CartMove(c: Cart) = cCartOnSegment(c, get_next(c)) . CartProc(get_id(c));
+			sum c: Cart . sum sw: Switch . cSendCartForward(num, c, sw) . SignalCartMoved(forward(c, sw)) +
+			sum c: Cart . cSendCartBackward(num, c) . SignalCartMoved(backward(c));
 	
-	Main(s: State) =
-			sum n: Nat . (n >= 0 && n < 4 && allow_next(get_rail(get_cart(n, s)), get_switch(s)))
-				-> mSendCartForward(n, get_cart(n, s), get_switch(s)) . Main(forward(n, s)) + 
-			sum n: Nat . (n >= 0 && n < 4 && allow_prev(get_rail(get_cart(n, s))))
-				-> mSendCartBackward(n, get_cart(n, s)) . Main(backward(n, s)) + 
-			sum n: Nat . sum r: Rail . (n >= 0 && n < 4)
-				-> mCartOnSegment(get_cart(n, s), get_next(get_cart(n, s))) . Main(move_to_target(n, s)) + 
-			sum n: Nat . (n >= 0 && n < 3 && n != get_id(get_switch(s)))
-				-> (switchRail(switch(n)) . Main(set_switch(switch(n), s)));
-
+	% Procedure to notify the main system that a cart has moved.
+	SignalCartMoved(c: Cart) = cCartOnSegment(c, get_target(c)) . CartProc(get_id(c));
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%% Main system procedures %%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Main procedure of the system.
+	MainProc(s: State) = Test(s) + 
+			sum cID: Nat . (cID >= 0 && cID < 4) -> (MoveCartForward(s, cID) + MoveCartBackward(s, cID) + DetectCartMoved(s, cID)) +
+			sum n: Nat . (n >= 0 && n < 3) -> MoveSwitch(s, n);
+	
+	% Procedure to move the cart with the given ID one step forward.
+	MoveCartForward(s: State, cID: Nat) = (allow_next(get_rail(get_cart(cID, s)), get_switch(s)) &&
+				allow_movement(cID, next(get_rail(get_cart(cID, s)), get_switch(s)), s))
+			-> mSendCartForward(cID, get_cart(cID, s), get_switch(s)) . MainProc(forward(cID, s));
+	
+	% Procedure to move the cart with the given ID one step backward.
+	MoveCartBackward(s: State, cID: Nat) = (allow_prev(get_rail(get_cart(cID, s))) &&
+					allow_movement(cID, prev(get_rail(get_cart(cID, s))), s))
+				-> mSendCartBackward(cID, get_cart(cID, s)) . MainProc(backward(cID, s));
+	
+	% Procedure to detect movement from a cart.
+	DetectCartMoved(s: State, cID: Nat) = mCartOnSegment(get_cart(cID, s), get_target(get_cart(cID, s))) . MainProc(move_to_target(cID, s));
+	
+	% Procedure to move the rail switch.
+	MoveSwitch(s: State, n: Nat) = (n != get_id(get_switch(s)))
+				-> (switchRail(switch(n)) . MainProc(set_switch(switch(n), s)));
+	
+	Test(s: State) = test . (skip + (allow_movement(3, rail(4), s)) -> cont) . MainProc(s);
 
 init
 	allow (
-		{ sendCartForward, sendCartBackward, cartOnSegment, switchRail },
+		{ sendCartForward, sendCartBackward, cartOnSegment, switchRail, test, skip, cont },
 		comm ({
 				mSendCartForward | cSendCartForward -> sendCartForward,
 				mSendCartBackward | cSendCartBackward -> sendCartBackward,
 				mCartOnSegment | cCartOnSegment -> cartOnSegment
 			},
-			Main(init_state) ||
+			MainProc(init_state) ||
 				CartProc(0) ||
 				CartProc(1) ||
 				CartProc(2) ||
