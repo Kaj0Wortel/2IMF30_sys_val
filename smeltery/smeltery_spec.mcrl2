@@ -29,7 +29,7 @@ map
 	% Returns true if the cart is broken. False otherwise.
     is_broken: Cart -> Bool;
 	% Returns true if the cart needs maintenance. False otherwise.
-    needs_main: Cart -> Bool;
+    needs_main: Cart -> Bool; 
 	% Returns true if the cart is unloading. False otherwise.
 	is_unloading: Cart -> Bool;
 	% Returns true if the cart is empty. False otherwise.
@@ -241,45 +241,69 @@ eqn
             num == n || (get_rail(get_cart(num, st)) != rl && get_target(get_cart(num, st)) != rl)
     );
 	
-	allow_switch(st) = forall crt: Nat . (crt >= 0 && crt < 4) => (
-			get_rail(get_cart(crt, st)) != rail(3) && get_target(get_cart(crt, st)) != rail(3)
+	allow_switch(st) = forall cID: Nat . (cID < 4) => (
+			get_rail(get_cart(cID, st)) != rail(3) && get_target(get_cart(cID, st)) != rail(3)
 	);
 
 
 act
 	% Cart
 	mSendCartForward, cSendCartForward, sendCartForward: Nat # Cart # Switch;
-	mSendCartBackward, cSendCartBackward, sendCartBackward: Nat # Cart;
+	mSendCartBackward, cSendCartBackward, sendCartBackward: Cart;
 	mCartOnSegment, cCartOnSegment, cartOnSegment: Cart # Rail;
+	% Cart maintenance.
+	mCartDown, cCartDown, cartDown: Cart;
+	mCartUp, cCartUp, cartUp: Cart;
+	mCartMain, cCartMain, cartMain: Cart;
 	% Refinery
-	mRequestIron, rRequestIron, requestIron: Nat # Refinery;
+	mRequestIron, rRequestIron, requestIron: Refinery;
 	% Switch
-	switchRail: Switch;
-
+	sSwitchRail, mSwitchRail, switchRail: Switch;
+	tmp;
 
 proc
 	%%%%%%%%%%%%%%%%%%%%%
 	%% Cart procedures %%
 	%%%%%%%%%%%%%%%%%%%%%
 	% Main procedure of a cart.
-	CartProc(num: Nat) =
-			sum c: Cart . (get_id(c) == num) -> (
-				sum sw: Switch . cSendCartForward(num, c, sw) . SignalCartMoved(forward(c, sw)) +
-				cSendCartBackward(num, c) . SignalCartMoved(backward(c))
-			);
+	CartProc(c: Cart) =
+			CartForward(c) +
+			CartBackward(c) +
+			MoveCart(c) +
+			CartEvents(c);
 	
-	% Procedure to signal the main system that a cart has moved.
-	SignalCartMoved(c: Cart) = cCartOnSegment(c, get_target(c)) . CartProc(get_id(c));
+	% Procedure to move the cart forward.
+	CartForward(c: Cart) = sum sw: Switch . (get_id(sw) < 3) ->
+			(!is_broken(c) &&  get_rail(c) == get_target(c)) ->
+				cSendCartForward(get_id(c), c, sw) . CartProc(forward(c, sw));
+	
+	% Procedure to move the cart backward.
+	CartBackward(c: Cart) = (!is_broken(c) && get_rail(c) == get_target(c)) ->
+			cSendCartBackward(c) . CartProc(backward(c));
+	
+	MoveCart(c: Cart) = (!is_broken(c) && get_rail(c) != get_target(c)) -> cCartOnSegment(c, get_target(c)) . CartProc(move_to_target(c));
+	
+	% Procedure to signal the main system that a cart has broken down.
+	CartEvents(c: Cart) = (!is_broken(c)) -> cCartDown(c) . CartProc(set_maintain(false, set_broken(true, c))) +
+			(!is_broken(c) && !needs_main(c)) -> cCartMain(c) . CartProc(set_maintain(true, c)) +
+			(is_broken(c)) -> cCartUp(c) . CartProc(set_broken(false, c));
 	
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% Refinery procedures %%
 	%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Main procedure of the refineries.
-	RefProc(num: Nat) = sum r: Refinery . (get_id(r) == num) -> SignalRequest(r);
+	RefProc(r: Refinery) = SignalRequest(r);
 	
 	% Procedure to signal the main system that a refinery requests iron.
-	SignalRequest(r: Refinery) = (!is_broken(r) && !has_request(r)) -> (rRequestIron(get_id(r), r) . RefProc(get_id(r)));
+	SignalRequest(r: Refinery) = (!is_broken(r) && !has_request(r)) -> (rRequestIron(r) . RefProc(r));
+	
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%% Main system procedures %%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Main procedure of the rail switch
+	SwitchProc(sw: Switch) = sum newSw: Switch . (get_id(newSw) < 3) -> sSwitchRail(newSw) . SwitchProc(newSw);
 	
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -287,48 +311,72 @@ proc
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Main procedure of the system.
 	MainProc(s: State) =
-			sum cID: Nat . (cID < 4) -> (MoveCartForward(s, cID) + MoveCartBackward(s, cID) + DetectCartMoved(s, cID)) +
-			sum sID: Nat . (sID < 3) -> MoveSwitch(s, sID) +
-			sum rID: Nat . (rID < 3) -> DetectRequest(s, get_refinery(rID, s));
+			sum cID: Nat . (cID < 4) -> (
+				MoveCartForward(s, cID) +
+				MoveCartBackward(s, cID) +
+				DetectCartMoved(s, cID) +
+				DetectCartEvents(s, cID)) +
+			sum swID: Nat . (swID < 3) -> MoveSwitch(s, swID) +
+			sum rID: Nat . (rID < 3) -> DetectRequest(s, rID);
 	
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%% Main system communication procedures %%
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Procedure to move the cart with the given ID one step forward.
-	MoveCartForward(s: State, cID: Nat) = (allow_next(get_rail(get_cart(cID, s)), get_switch(s)) &&
-				allow_movement(cID, next(get_rail(get_cart(cID, s)), get_switch(s)), s))
-			-> mSendCartForward(cID, get_cart(cID, s), get_switch(s)) . MainProc(forward(cID, s));
+	MoveCartForward(s: State, cID: Nat) = (
+				allow_next(get_rail(get_cart(cID, s)), get_switch(s)) &&
+				allow_movement(cID, next(get_rail(get_cart(cID, s)), get_switch(s)), s)) ->
+			mSendCartForward(cID, get_cart(cID, s), get_switch(s)) . MainProc(forward(cID, s));
 	
 	% Procedure to move the cart with the given ID one step backward.
-	MoveCartBackward(s: State, cID: Nat) = (allow_prev(get_rail(get_cart(cID, s))) &&
-					allow_movement(cID, prev(get_rail(get_cart(cID, s))), s))
-				-> mSendCartBackward(cID, get_cart(cID, s)) . MainProc(backward(cID, s));
+	MoveCartBackward(s: State, cID: Nat) = (
+				allow_prev(get_rail(get_cart(cID, s))) &&
+				allow_movement(cID, prev(get_rail(get_cart(cID, s))), s)) ->
+			mSendCartBackward(get_cart(cID, s)) . MainProc(backward(cID, s));
 	
 	% Procedure to detect movement from a cart.
-	DetectCartMoved(s: State, cID: Nat) = mCartOnSegment(get_cart(cID, s), get_target(get_cart(cID, s))) . MainProc(move_to_target(cID, s));
+	DetectCartMoved(s: State, cID: Nat) = mCartOnSegment(get_cart(cID, s), get_target(get_cart(cID, s))) .
+			MainProc(move_to_target(cID, s));
+	
+	% Procedure to detect when a cart is broken.
+	DetectCartEvents(s: State, cID: Nat) =
+			mCartDown(get_cart(cID, s)) . MainProc(set_cart(cID, set_maintain(false, set_broken(true, get_cart(cID, s))), s)) + 
+			mCartMain(get_cart(cID, s)) . MainProc(set_cart(cID, set_maintain(true, get_cart(cID, s)), s)) +
+			mCartUp(get_cart(cID, s)) . MainProc(set_cart(cID, set_broken(false, get_cart(cID, s)), s));
 	
 	% Procedure to detect a request of a refinery.
-	DetectRequest(s: State, ref: Refinery) = mRequestIron(get_id(ref), ref) . MainProc(set_refinery(get_id(ref), set_request(true, ref), s));
+	DetectRequest(s: State, rID: Nat) = mRequestIron(get_refinery(rID, s)) .
+			MainProc(set_refinery(rID, set_request(true, get_refinery(rID, s)), s));
 	
 	% Procedure to move the rail switch.
-	MoveSwitch(s: State, sID: Nat) = (allow_switch(s) && sID != get_id(get_switch(s)))
-				-> (switchRail(switch(sID)) . MainProc(set_switch(switch(sID), s)));
+	MoveSwitch(s: State, swID: Nat) = allow_switch(s) -> switchRail(switch(swID)) . MainProc(set_switch(switch(swID), s));
 
 
 init
-	allow (
-		{ sendCartForward, sendCartBackward, cartOnSegment, switchRail, requestIron },
-		comm ({
-				mSendCartForward | cSendCartForward -> sendCartForward,
-				mSendCartBackward | cSendCartBackward -> sendCartBackward,
-				mCartOnSegment | cCartOnSegment -> cartOnSegment,
-				mRequestIron | rRequestIron -> requestIron
-			},
-			MainProc(init_state) ||
-				CartProc(0) ||
-				CartProc(1) ||
-				CartProc(2) ||
-				CartProc(3) ||
-				RefProc(0) ||
-				RefProc(1) ||
-				RefProc(2)
+	hide ({ tmp },
+		allow (
+			{ sendCartForward, sendCartBackward, cartOnSegment, switchRail, requestIron, cartDown, cartUp, cartMain },
+			comm ({
+					mSendCartForward | cSendCartForward -> sendCartForward,
+					mSendCartBackward | cSendCartBackward -> sendCartBackward,
+					mCartOnSegment | cCartOnSegment -> cartOnSegment,
+					mCartDown | cCartDown -> cartDown,
+					mCartMain | cCartMain -> cartMain,
+					mCartUp | cCartUp -> cartUp,
+					mRequestIron | rRequestIron -> requestIron,
+					mSwitchRail | sSwitchRail -> switchRail
+				},
+				MainProc(init_state) ||
+					CartProc(init_cart(0, 0)) ||
+					CartProc(init_cart(1, 1)) ||
+					CartProc(init_cart(2, 2)) ||
+					CartProc(init_cart(3, 3)) ||
+					RefProc(init_refinery(0)) ||
+					RefProc(init_refinery(1)) ||
+					RefProc(init_refinery(2)) ||
+					SwitchProc(init_switch)
+			)
 		)
 	);
 
