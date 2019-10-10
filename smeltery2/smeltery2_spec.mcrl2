@@ -2,7 +2,7 @@
 
 sort Rail = struct rail(id: Nat);
 sort Ref = struct ref(rs0: Nat, rs1: Nat, rs2: Nat, res0: Nat, res1: Nat, res2: Nat, cart0: Nat, cart1: Nat, cart2: Nat);
-sort Cart = struct cart(id: Nat, r: Rail, is_empty: Bool, req_main: Bool, is_down: Bool, has_req: Bool);
+sort Cart = struct cart(id: Nat, r: Rail, empty: Bool, down: Bool, req_main: Bool, rec_main: Bool);
 sort CartState = struct cartState(cart0: Cart, cart1: Cart, cart2: Cart, cart3: Cart);
 
 map
@@ -16,8 +16,15 @@ map
 	
 	get_id: Cart -> Nat;
 	get_rail: Cart -> Rail;
+	set_rail: Rail # Cart -> Cart;
 	is_empty: Cart -> Bool;
-	
+	set_empty: Bool # Cart -> Cart;
+	is_down: Cart -> Bool;
+	set_down: Bool # Cart -> Cart;
+	get_requires_main: Cart -> Bool;
+	set_requires_main: Bool # Cart -> Cart;
+	get_receiving_main: Cart -> Bool;
+	set_receiving_main: Bool # Cart -> Bool;
 	
 	init_cart_state: CartState;
 	get_cart: Nat # CartState -> Cart;
@@ -58,16 +65,23 @@ eqn
 	set_cart(2, c, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s1, s2, r0, r1, r2, c0, c1, c);
 	
 
-var r, r0, r1, r2: Nat;
+var n, n1: Nat;
+	r, r1: Rail
+	b, b1, b2, b3, b4: Bool;
 eqn
-	init_buf_state = bufState(0, 0, 0);
+	init_cart(
 	
-	get_buf_state(0, bufState(r0, r1, r2)) = r0;
-	get_buf_state(1, bufState(r0, r1, r2)) = r1;
-	get_buf_state(2, bufState(r0, r1, r2)) = r2;
-	set_buf_state(0, r, bufState(r0, r1, r2)) = bufState(r, r1, r2);
-	set_buf_state(1, r, bufState(r0, r1, r2)) = bufState(r0, r, r2);
-	set_buf_state(2, r, bufState(r0, r1, r2)) = bufState(r0, r1, r);
+	get_id(cart(n, r, b1, b2, b3, b4)) -> n;
+	get_rail: Cart -> Rail;
+	set_rail: Rail # Cart -> Cart;
+	is_empty: Cart -> Bool;
+	set_empty: Bool # Cart -> Cart;
+	is_down: Cart -> Bool;
+	set_down: Bool # Cart -> Cart;
+	get_requires_main: Cart -> Bool;
+	set_requires_main: Bool # Cart -> Cart;
+	get_receiving_main: Cart -> Bool;
+	set_receiving_main: Bool # Cart -> Bool;
 
 
 var c, c0, c1, c2, c3: Cart;
