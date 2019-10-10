@@ -144,7 +144,7 @@ act
 	
 	% Internal actions.
 	pourCart;
-	refACart, cartACart, aCart: Nat # Nat;
+	refACart, cartACart, aCart: Nat # Nat; % Refinery # Cart
 	refRequestDone, carRequestqDone, requestDone: Nat;
 	
 	% Internal + external actions.
@@ -152,9 +152,11 @@ act
 	
 	
 	%% RequestBuffer
-	bufRefRequestIron, bufCartRequestIron, bufDoneRequest, requestIronBuf, cartDoneRequest: Nat;
+	bufRefRequestIron, bufCartRequestIron, requestIronBuf
+	bufRequestDone, cartRequestDone, requestDone: Nat;
 	
-	
+	%% CartMover
+	cartDown: Nat;
 
 
 proc
@@ -171,25 +173,25 @@ proc
 				(get_error_state(n, rs) == 0) -> (
 					refineryDown(n) . Refinery(set_error_state(n, 1, rs)) +
 					(get_state(n, rs) == 0) -> refRequestIron(n) . Refinery(set_state(n, 1, rs)) +
-					(get_state(n, rs) == 1) -> refACart(n,  . Refinery(set_state(n, 2, rs)) +
-					(get_state(n, rs) == 2) -> unloadCart(n, true) . Refinery(set_state(n, 3, rs)) +
-					(get_state(n, rs) == 3) -> cartEmpty(n) . Refinery(set_state(n, 4, rs)) +
-					(get_state(n, rs) == 4) -> unloadCart(n, false) . Refinery(set_state(n, 5, rs)) +
+					(get_state(n, rs) == 1) -> sum c: Nat . (c < 4) -> refACart(n, c) . Refinery(set_cart(n, c, set_state(n, 2, rs))) +
+					(get_state(n, rs) == 2) -> unloadCart(get_cart(n, rs), true) . Refinery(set_state(n, 3, rs)) +
+					(get_state(n, rs) == 3) -> cartEmpty(get_cart(n, rs)) . Refinery(set_state(n, 4, rs)) +
+					(get_state(n, rs) == 4) -> unloadCart(get_cart(n, rs), false) . Refinery(set_state(n, 5, rs)) +
 					(get_state(n, rs) == 5) -> refRequestDone(n) . Refinery(set_state(n, 0, rs))
 				) +
 				(get_error_state(n, rs) == 1) -> requestRefineryMaintenance(n) . Refinery(set_error_state(n, 2, rs)) +
 				(get_error_state(n, rs) == 2) -> refineryUp(n) . Refinery(set_error_state(n, 0, rs))
 			);
 	
-	RequestBuffer(buf: List(Nat), s: Nat) =
-			(s == 0) -> sum r: Nat . (r < 3) -> bufRefRequestIron(r) . RequestBuffer(r |> buf, 1) +
-			(s == 1) -> sum r: Nat . (buf <| r) -> bufCartRequest(r) . RequestBuffer(buf, 2) +
-			(s == 2) -> sum r: Nat . (buf <| r) -> bufDoneRequest(r) . sum l: List(Nat) . (buf == r |> l) -> RequestBuffer(l, 0);
+	RequestBuffer(buf: List(Nat)) =
+			sum r: Nat . (r < 3) -> bufRefRequestIron(r) . RequestBuffer(buf <| r) +
+			bufCartRequestIron(head(buf)) . RequestBuffer(buf) +
+			bufRequestDone(head(buf)) . sum l: List(Nat) . (buf == head(buf) |> l) -> RequestBuffer(l);
 	
 	CartMover(cs: CartState, state: Nat) =
 			sum c: Nat . (c < 4) -> (
-				cartDown(c) . CartMover(set_cart(c, get_cart(c, cs)), state)
-			) + sum r: Nat . (r < 3) -> cartRequestIron(r) . CartMover(r);
+				cartDown(c) . CartMover(set_cart(c, set_down(true, get_cart(c, cs)), cs), state)
+			) + sum r: Nat . (r < 3) -> cartRequestIron(r) . CartMover(cs, state);
 
 init
 	allow ({ aCart, requestIron, requestIronBuf, requestDone, unloadCart },
