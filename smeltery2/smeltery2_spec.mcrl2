@@ -14,6 +14,7 @@ map
 	get_cart: Nat # Ref -> Nat;
 	set_cart: Nat # Nat # Ref -> Ref;
 	
+	init_cart: Nat # Nat -> Cart;
 	get_id: Cart -> Nat;
 	get_rail: Cart -> Rail;
 	set_rail: Rail # Cart -> Cart;
@@ -69,7 +70,7 @@ var n, n1: Nat;
 	r, r1: Rail
 	b, b1, b2, b3, b4: Bool;
 eqn
-	init_cart(
+	init_cart(n, n1) -> cart(n, rail(n1), true, false, false, false);
 	
 	get_id(cart(n, r, b1, b2, b3, b4)) -> n;
 	get_rail: Cart -> Rail;
