@@ -1,0 +1,183 @@
+
+
+sort Rail = struct rail(id: Nat);
+sort Ref = struct ref(rs0: Nat, rs1: Nat, rs2: Nat, res0: Nat, res1: Nat, res2: Nat, cart0: Nat, cart1: Nat, cart2: Nat);
+sort Cart = struct cart(id: Nat, r: Rail, is_empty: Bool, req_main: Bool, is_down: Bool, has_req: Bool);
+sort CartState = struct cartState(cart0: Cart, cart1: Cart, cart2: Cart, cart3: Cart);
+
+map
+	init_ref_state: Ref;
+	get_state: Nat # Ref -> Nat;
+	set_state: Nat # Nat # Ref -> Ref;
+	get_error_state: Nat # Ref -> Nat;
+	set_error_state: Nat # Nat # Ref -> Ref;
+	get_cart: Nat # Ref -> Nat;
+	set_cart: Nat # Nat # Ref -> Ref;
+	
+	get_id: Cart -> Nat;
+	get_rail: Cart -> Rail;
+	is_empty: Cart -> Bool;
+	
+	
+	init_cart_state: CartState;
+	get_cart: Nat # CartState -> Cart;
+	set_cart: Nat # Cart # CartState -> CartState;
+	is_broken: Nat # CartState -> Bool;
+	set_broken: Nat # CartState -> CartState;
+	is_req: Nat # CartState -> Bool;
+	set_req: Nat # CartState -> CartState;
+	is_normal: Nat # CartState -> Bool;
+	set_fixed: Nat # CartState -> CartState;
+
+
+var s, s0, s1, s2: Nat;
+	r, r0, r1, r2: Nat;
+	c, c0, c1, c2: Nat;
+eqn
+	init_ref_state = ref(0, 0, 0, 0, 0, 0, 0, 0, 0);
+	
+	get_state(0, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = s0;
+	get_state(1, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = s1;
+	get_state(2, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = s2;
+	set_state(0, s, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s, s1, s2, r0, r1, r2, c0, c1, c2);
+	set_state(1, s, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s, s2, r0, r1, r2, c0, c1, c2);
+	set_state(2, s, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s1, s, r0, r1, r2, c0, c1, c2);
+
+	get_error_state(0, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = r0;
+	get_error_state(1, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = r1;
+	get_error_state(2, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = r2;
+	set_error_state(0, r, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s1, s2, r, r1, r2, c0, c1, c2);
+	set_error_state(1, r, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s1, s2, r0, r, r2, c0, c1, c2);
+	set_error_state(2, r, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s1, s2, r0, r1, r, c0, c1, c2);
+	
+	get_cart(0, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = c0;
+	get_cart(1, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = c1;
+	get_cart(2, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = c2;
+	set_cart(0, c, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s1, s2, r0, r1, r2, c, c1, c2);
+	set_cart(1, c, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s1, s2, r0, r1, r2, c0, c, c2);
+	set_cart(2, c, ref(s0, s1, s2, r0, r1, r2, c0, c1, c2)) = ref(s0, s1, s2, r0, r1, r2, c0, c1, c);
+	
+
+var r, r0, r1, r2: Nat;
+eqn
+	init_buf_state = bufState(0, 0, 0);
+	
+	get_buf_state(0, bufState(r0, r1, r2)) = r0;
+	get_buf_state(1, bufState(r0, r1, r2)) = r1;
+	get_buf_state(2, bufState(r0, r1, r2)) = r2;
+	set_buf_state(0, r, bufState(r0, r1, r2)) = bufState(r, r1, r2);
+	set_buf_state(1, r, bufState(r0, r1, r2)) = bufState(r0, r, r2);
+	set_buf_state(2, r, bufState(r0, r1, r2)) = bufState(r0, r1, r);
+
+
+var c, c0, c1, c2, c3: Cart;
+	n: Nat;
+eqn
+	init_cart_state = cartState(
+			cart(cartState(0, rail(0), true, false, false),
+			cart(cartState(1, rail(3), true, false, false),
+			cart(cartState(2, rail(5), true, false, false),
+			cart(cartState(3, rail(7), true, false, false)
+	);
+	
+	get_cart(0, cartState(c0, c1, c2, c3)) = c0;
+	get_cart(1, cartState(c0, c1, c2, c3)) = c1;
+	get_cart(2, cartState(c0, c1, c2, c3)) = c2;
+	get_cart(3, cartState(c0, c1, c2, c3)) = c3;
+	set_cart(0, c, cartState(c0, c1, c2, c3)) = cartState(c, c1, c2, c3);
+	set_cart(1, c, cartState(c0, c1, c2, c3)) = cartState(c0, c, c2, c3);
+	set_cart(2, c, cartState(c0, c1, c2, c3)) = cartState(c0, c1, c, c3);
+	set_cart(3, c, cartState(c0, c1, c2, c3)) = cartState(c0, c1, c2, c);
+	
+	is_broken(n, cartState(c0, c1, c2, c3) = 
+	is_broken: Nat # CartState -> Bool;
+	set_broken: Nat # CartState -> CartState;
+
+	is_req: Nat # CartState -> Bool;
+	set_req: Nat # CartState -> CartState;
+
+	is_normal: Nat # CartState -> Bool;
+	set_fixed: Nat # CartState -> CartState;
+
+
+act
+	%% Blast furnace.
+	% External actions.
+	furnaceDown, requestFurnaceMaintenance, furnaceUp;
+	cartFull: Nat;
+	pourFurnace: Bool;
+	% Internal actions.
+	fillCart, cartIsFull: Nat;
+	
+	
+	%% Refinery.
+	% External actions.
+	refineryDown, requestRefineryMaintenance, refineryUp: Nat;
+	unloadCart: Nat # Bool;
+	cartEmpty: Nat;
+	
+	% Internal actions.
+	pourCart;
+	refACart, cartACart, aCart: Nat # Nat;
+	refRequestDone, carRequestqDone, requestDone: Nat # Nat;
+	
+	% Internal + external actions.
+	refRequestIron, cartRequestIron, requestIron: Nat;
+	
+	
+	%% RequestBuffer
+	bufRefRequestIron, bufCartRequestIron, bufDoneRequest, requestIronBuf, cartDoneRequest: Nat;
+	
+	
+
+
+proc
+	BlastFurnace(fs: Nat, c: Nat) =
+			furnaceDown . requestFurnaceMaintenance . furnaceUp . BlastFurnace(fs, c) +
+			(fs == 0) -> sum crt: Nat . (crt < 4) -> fillCart(crt) . BlastFurnace(1, crt) +
+			(fs == 1) -> pourFurnace(true) . BlastFurnace(2, c) +
+			(fs == 2) -> cartFull(c) . BlastFurnace(3, c) +
+			(fs == 3) -> pourFurnace(false) . BlastFurnace(4, c) +
+			(fs == 4) -> cartIsFull(c) . BlastFurnace(0, c);
+	
+	Refinery(rs: Ref) =
+			sum n: Nat . (n < 3) -> (
+				(get_error_state(n, rs) == 0) -> (
+					refineryDown(n) . Refinery(set_error_state(n, 1, rs)) +
+					(get_state(n, rs) == 0) -> refRequestIron(n) . Refinery(set_state(n, 1, rs)) +
+					(get_state(n, rs) == 1) -> refACart . Refinery(set_state(n, 2, rs)) +
+					(get_state(n, rs) == 2) -> unloadCart(c, true) . Refinery(set_state(n, 3, rs)) +
+					(get_state(n, rs) == 3) -> cartEmpty . Refinery(set_state(n, 4, rs)) +
+					(get_state(n, rs) == 4) -> unloadCart(c, false) . Refinery(set_state(n, 5, rs)) +
+					(get_state(n, rs) == 5) -> refRequestDone(n) . Refinery(set_state(n, 0, rs))
+				) +
+				(get_error_state(n, rs) == 1) -> requestRefineryMaintenance(n) . Refinery(set_error_state(n, 2, rs)) +
+				(get_error_state(n, rs) == 2) -> refineryUp(n) . Refinery(set_error_state(n, 0, rs))
+			);
+	
+	RequestBuffer(buf: List(Nat), s: Nat) =
+			(s == 0) -> sum r: Nat . (r < 3) -> bufRefRequestIron(r) . RequestBuffer(r |> buf, 1) +
+			(s == 1) -> sum r: Nat . (buf <| r) -> bufCartRequest(r) . RequestBuffer(buf, 2) +
+			(s == 2) -> sum r: Nat . (buf <| r) -> bufDoneRequest(r) . sum l: List(Nat) . (buf == r |> l) -> RequestBuffer(l, 0);
+	
+	CartMover(cs: cartState, state: Nat) =
+			sum c: Nat . (c < 4) -> (
+				cartDown(c) . CartMover(set_cart(c, get_cart(c, cs)), state)
+			) + sum r: Nat . (r < 3) -> cartRequestIron(r) . CartMover(r);
+
+init
+	allow ({ requestIron, aCart, requestDone },
+		comm ({
+				refACart | cartACart -> aCart,
+				refRequestIron | bufRefRequestIron -> requestIron,
+				cartRequestIron | bufCartRequestIron -> requestIronBuf,
+				cartRequestDone | bufRequestDone -> requestDone,
+			},
+			BlastFurnace(0, 0) || Refinery(init_ref_state) || RequestBuffer(init_buf_state);
+		)
+	);
+
+
+
+
+

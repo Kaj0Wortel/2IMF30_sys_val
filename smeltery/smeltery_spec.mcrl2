@@ -175,7 +175,7 @@ eqn
 	is_unloading(cart(n, r, trgt, br, main, unl, emp)) = unl;
 	is_empty(cart(n, r, trgt, br, main, unl, emp)) = emp;
 	
-	init_cart(n, rn) = cart(n, rail(rn), rail(rn), false, false, false, true);
+	init_cart(n, rn) = cart(n, rail(rn), rail(rn), false, false, true, false);
 	
 	forward(cart(n, r, trgt, br, main, unl, emp), sw) = cart(n, r, next(r, sw), br, main, unl, emp);
 	backward(cart(n, r, trgt, br, main, unl, emp)) = cart(n, r, prev(r), br, main, unl, emp);
@@ -204,7 +204,7 @@ var c, c0, c1, c2, c3: Cart;
 	rl: Rail;
 	st: State;
 eqn
-	init_state = state_cons(init_cart(0, 0), init_cart(1, 1), init_cart(2, 2), init_cart(3, 3), init_refinery(0), init_refinery(1), init_refinery(2), init_switch);
+	init_state = state_cons(init_cart(0, 0), init_cart(1, 1), init_cart(2, 2), init_cart(3, 4), init_refinery(0), init_refinery(1), init_refinery(2), init_switch);
 	
 	get_cart(0, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c0;
 	get_cart(1, state_cons(c0, c1, c2, c3, r0, r1, r2, sw)) = c1;
@@ -255,6 +255,7 @@ act
 	mCartDown, cCartDown, cartDown: Cart;
 	mCartUp, cCartUp, cartUp: Cart;
 	mCartMain, cCartMain, cartMain: Cart;
+	mCartEmpty, rCartEmpty, cCartEmpty, cartEmpty: Cart;
 	% Refinery
 	mRequestIron, rRequestIron, requestIron: Refinery;
 	% Switch
@@ -270,7 +271,8 @@ proc
 			CartForward(c) +
 			CartBackward(c) +
 			MoveCart(c) +
-			CartEvents(c);
+			CartEvents(c) +
+			EmptyingCart(c);
 	
 	% Procedure to move the cart forward.
 	CartForward(c: Cart) = sum sw: Switch . (get_id(sw) < 3) ->
@@ -288,6 +290,8 @@ proc
 			(!is_broken(c) && !needs_main(c)) -> cCartMain(c) . CartProc(set_maintain(true, c)) +
 			(is_broken(c)) -> cCartUp(c) . CartProc(set_broken(false, c));
 	
+	EmptyingCart(c: Cart) = (!is_empty(c) && is_unloading(c)) -> cCartEmpty(c) . CartProc(set_empty(true, c)); 
+	
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% Refinery procedures %%
@@ -296,7 +300,7 @@ proc
 	RefProc(r: Refinery) = SignalRequest(r);
 	
 	% Procedure to signal the main system that a refinery requests iron.
-	SignalRequest(r: Refinery) = (!is_broken(r) && !has_request(r)) -> (rRequestIron(r) . RefProc(r));
+	SignalRequest(r: Refinery) = (!is_broken(r) && !has_request(r)) -> rRequestIron(r) . sum c: Cart . (get_id(c) < 4 && get_rail(c) == get_rail(r)) -> rCartEmpty(c) . RefProc(r);
 	
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -313,10 +317,10 @@ proc
 	MainProc(s: State) =
 			sum cID: Nat . (cID < 4) -> (
 				MoveCartForward(s, cID) +
-				MoveCartBackward(s, cID) +
+				%MoveCartBackward(s, cID) +
 				DetectCartMoved(s, cID) +
 				DetectCartEvents(s, cID)) +
-			sum swID: Nat . (swID < 3) -> MoveSwitch(s, swID) +
+			%sum swID: Nat . (swID < 3) -> MoveSwitch(s, swID) +
 			sum rID: Nat . (rID < 3) -> DetectRequest(s, rID);
 	
 	
@@ -353,10 +357,29 @@ proc
 	MoveSwitch(s: State, swID: Nat) = allow_switch(s) -> switchRail(switch(swID)) . MainProc(set_switch(switch(swID), s));
 
 
+
+
+act
+	fcFillCart, mFillCart, FillCart: Cart;
+	fcCartFull, mCartFull, cartFull: Cart;
+
+proc
+	FillCart = sum Cart c . (get_id(c) < 4) -> MoveToFurnace(c) . fillCart(c) . cartFull(c);
+	
+	MoveToFurnace(c: Cart) = (get_rail(c) > rail(1)) -> sendCartBackward(c) . cartOnSegment(c, prev(get_rail(c))) . MoveToFurnace(set_rail(c, prev(get_rail(c))));
+
+
+	Main(s: State) = sum cID: Nat . (cID < 4) -> fillCart(get_cart(cID, s)) . setCartForward(c) . cartOnSegment(c, rail(0));
+
+
+
+
+
+
 init
 	hide ({ tmp },
 		allow (
-			{ sendCartForward, sendCartBackward, cartOnSegment, switchRail, requestIron, cartDown, cartUp, cartMain },
+			{ sendCartForward, sendCartBackward, cartOnSegment, switchRail, requestIron, cartDown, cartUp, cartMain, cartEmpty },
 			comm ({
 					mSendCartForward | cSendCartForward -> sendCartForward,
 					mSendCartBackward | cSendCartBackward -> sendCartBackward,
@@ -365,17 +388,24 @@ init
 					mCartMain | cCartMain -> cartMain,
 					mCartUp | cCartUp -> cartUp,
 					mRequestIron | rRequestIron -> requestIron,
-					mSwitchRail | sSwitchRail -> switchRail
+					mSwitchRail | sSwitchRail -> switchRail,
+					rCartEmpty | cCartEmpty -> cartEmpty,
+					
+					
+					
+					fcFillCart | mFillCart -> fillCart,
+					fcCartFull | mCartFull -> cartFull
 				},
-				MainProc(init_state) ||
-					CartProc(init_cart(0, 0)) ||
-					CartProc(init_cart(1, 1)) ||
-					CartProc(init_cart(2, 2)) ||
-					CartProc(init_cart(3, 3)) ||
-					RefProc(init_refinery(0)) ||
-					RefProc(init_refinery(1)) ||
-					RefProc(init_refinery(2)) ||
-					SwitchProc(init_switch)
+				Main(init_state) || FillCart
+%				MainProc(init_state) ||
+%					CartProc(init_cart(0, 0)) ||
+%					CartProc(init_cart(1, 1)) ||
+%					CartProc(init_cart(2, 2)) ||
+%					CartProc(init_cart(3, 4)) ||
+%					RefProc(init_refinery(0)) ||
+%					RefProc(init_refinery(1)) ||
+%					RefProc(init_refinery(2)) ||
+%					SwitchProc(init_switch)
 			)
 		)
 	);
