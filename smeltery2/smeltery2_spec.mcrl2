@@ -18,8 +18,15 @@ sort CartState = struct cartState(cart0: Cart, cart1: Cart, cart2: Cart, cart3: 
 map
 	% Static functions.
 	get_refinery_rail: Nat -> Rail;
+	get_refinery_at: Rail -> Nat;
+	is_at_refinery: Rail -> Bool;
+
 	get_furnace_rail: Rail;
+	is_at_furnace: Rail -> Bool;
+
 	get_repair_bay_rail: Nat -> Rail;
+	get_repair_bay_at: Rail -> Nat;
+	is_at_repair_bay: Rail -> Bool;
 	
 	get_id: Rail -> Nat;
 	allow_next: Rail # Switch -> Bool;
@@ -59,6 +66,8 @@ map
 	
 	get_cart: Nat # CartState -> Cart;
 	set_cart: Nat # Cart # CartState -> CartState;
+	get_rail: Nat # CartState -> Rail;
+	set_rail: Nat # Rail # CartState -> CartState;
 	is_empty: Nat # CartState -> Bool;
 	set_empty: Nat # Bool # CartState -> CartState;
 	is_down: Nat # CartState -> Bool;
@@ -70,17 +79,28 @@ map
 
 
 var n: Nat;
+	r, r1: Rail;
 eqn
 	get_refinery_rail(0) = rail(3);
 	get_refinery_rail(1) = rail(5);
 	get_refinery_rail(2) = rail(7);
+	get_refinery_at(rail(3)) = 0;
+	get_refinery_at(rail(5)) = 1;
+	get_refinery_at(rail(7)) = 2;
+	is_at_refinery(r) = exists refID: Nat . (refID < 3 && r == get_refinery_rail(refID));
 	
 	get_furnace_rail = rail(1);
+	is_at_furnace(r) = (r == get_furnace_rail);
 	
 	get_repair_bay_rail(0) = rail(0);
 	get_repair_bay_rail(1) = rail(4);
 	get_repair_bay_rail(2) = rail(6);
 	get_repair_bay_rail(3) = rail(8);
+	get_repair_bay_at(rail(0)) = 0;
+	get_repair_bay_at(rail(4)) = 1;
+	get_repair_bay_at(rail(6)) = 2;
+	get_repair_bay_at(rail(8)) = 3;
+	is_at_repair_bay(r) = exists bayID: Nat . (bayID < 4 && r == get_repair_bay_rail(bayID));
 
 
 var n, s: Nat;
@@ -161,6 +181,7 @@ eqn
 
 
 var c, c0, c1, c2, c3: Cart;
+	r: Rail;
 	n: Nat;
 	b: Bool;
 	cs: CartState;
@@ -180,6 +201,9 @@ eqn
 	set_cart(1, c, cartState(c0, c1, c2, c3)) = cartState(c0, c, c2, c3);
 	set_cart(2, c, cartState(c0, c1, c2, c3)) = cartState(c0, c1, c, c3);
 	set_cart(3, c, cartState(c0, c1, c2, c3)) = cartState(c0, c1, c2, c);
+	
+	get_rail(n, cs) = get_rail(get_cart(n, cs));
+	set_rail(n, r, cs) = set_cart(n, set_rail(r, get_cart(n, cs)), cs);
 	
 	is_empty(n, cs) = is_empty(get_cart(n, cs));
 	set_empty(n, b, cs) = set_cart(n, set_empty(b, get_cart(n, cs)), cs);
@@ -222,11 +246,9 @@ act
 	bufRequestDone, cartRequestDone, refRequestDone, requestDone: Nat;
 	
 	
-	%% RequestBuffer
-	
-	
 	%% CartMover
-	cartDown: Nat;
+	cartDown, requestEmergencyCartMaintenance, cartUp: Nat;
+	cartRequestMaintenance, requestCartMaintenance, repairCart: Nat;
 	tmp;
 
 
@@ -264,7 +286,16 @@ proc
 	
 	CartMover(cs: CartState, state: Nat) =
 			sum c: Nat . (c < 4) -> (
-				cartDown(c) . CartMover(set_cart(c, set_down(true, get_cart(c, cs)), cs), state)
+				(!is_down(c, cs)) -> ( (!get_requires_main(c, cs))
+					-> (cartRequestMaintenance(c) . CartMover(set_requires_main(c, true, cs), state))
+					<> (!get_receiving_main(c, cs))
+						-> ( (is_at_repair_bay(get_rail(c, cs))) -> (requestCartMaintenance(c) . CartMover(set_receiving_main(c, true, cs), state)) )
+						<> repairCart(c) . CartMover(set_requires_main(c, false, set_receiving_main(c, false, cs)), state) ) +
+				(!is_down(c, cs))
+					-> ( (!get_receiving_main(c, cs)) -> (cartDown(c) . CartMover(set_down(c, true, cs), state)) )
+					<> (!get_receiving_main(c, cs))
+						-> (requestEmergencyCartMaintenance(c) . CartMover(set_receiving_main(c, true, cs), state))
+						<> (cartUp(c) . CartMover(set_down(c, false, set_receiving_main(c, false, cs)), state))
 			) + sum r: Nat . (r < 3) -> cartRequestIron(r) . CartMover(cs, state) +
 			% TMP
 			sum c: Nat . (c < 4) -> sum r: Nat . (r < 3) -> cartACart(r, c) . CartMover(cs, state) +
@@ -273,8 +304,12 @@ proc
 	MoveCartToTarget(c: Cart, cs: CartState) = tmp;
 
 init
-	allow ({ aCart, requestIron, requestIronBuf, requestDone, unloadCart, cartEmpty },
-		comm ({
+	allow({ aCart, requestIron, requestIronBuf, requestDone, unloadCart, cartEmpty,
+			refineryDown, requestRefineryMaintenance, refineryUp,
+			cartDown, requestEmergencyCartMaintenance, cartUp,
+			cartRequestMaintenance, requestCartMaintenance, repairCart,
+			furnaceDown, requestFurnaceMaintenance, furnaceUp },
+		comm({
 				refACart | cartACart -> aCart,
 				refRequestIron | bufRefRequestIron -> requestIron,
 				cartRequestIron | bufCartRequestIron -> requestIronBuf,
