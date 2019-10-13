@@ -1,4 +1,6 @@
 <root>
  <spec>smeltery2_spec.mcrl2</spec>
- <properties/>
+ <properties>
+  <property>no deadlock</property>
+ </properties>
 </root>
