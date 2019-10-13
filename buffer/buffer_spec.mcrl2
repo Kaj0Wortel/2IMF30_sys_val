@@ -1,0 +1,14 @@
+
+act
+	bufRefRequestIron, bufCartRequestIron, bufDoneRequest, requestIronBuf, cartDoneRequest: Nat;
+
+proc
+	RequestBuffer(dBuf: Set(Nat), buf: Set(Nat)) = 
+	  sum r: Nat . (r < 3 && !(r in buf || r in dBuf)) -> bufRefRequestIron(r) . RequestBuffer(dBuf, {r} + buf) +
+	  sum r: Nat . (r in buf) -> bufCartRequestIron(r) . RequestBuffer(dBuf + {r}, buf - {r}) + 
+	  sum r: Nat . (r in dBuf) -> bufDoneRequest(r) . RequestBuffer(dBuf - {r}, buf);
+
+init
+	allow(
+		{bufRefRequestIron, bufCartRequestIron, bufDoneRequest, requestIronBuf, cartDoneRequest},
+		comm({}, RequestBuffer({}, {})));
