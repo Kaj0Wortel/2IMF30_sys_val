@@ -440,7 +440,8 @@ proc
 	
 	
 init
-	hide ({ aCart, requestDone, cartIsFull, setTargetTo },
+	%hide ({ aCart, requestDone, cartIsFull, setTargetTo },
+	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
 				refineryDown, requestRefineryMaintenance, refineryUp,
