@@ -100,6 +100,8 @@ map
 	
 	get_route_for: Cart # Nat -> List(Rail); % Cart # refineryID -> route
 	free_route: Cart # Nat # CartState # Bag(Rail) -> Bool; % Cart # refineryID # state # reserved -> Bool
+	free_route: Cart # Rail # CartState # Bag(Rail) -> Bool; % Cart # rail # state # reserved -> Bool
+	free_closest_route: Cart # Nat # CartState # Bag(Rail) -> Bool; % Cart # refineryID # state # reserved -> Bool
 	
 	filled_carts: CartState -> List(Nat); % state -> List(cartID)
 	ref_req: CartState -> List(Nat); % state -> List(refineryID)
@@ -297,7 +299,10 @@ eqn
 	
 	(empty(c)) -> get_route_for(c, n) = get_route(rail(c), get_furnace_rail) ++ get_route(get_furnace_rail, get_refinery_rail(n));
 	(!empty(c)) -> get_route_for(c, n) = get_route(rail(c), get_refinery_rail(n));
-	free_route(c, n, cs, res) = !contains_any(res, get_route_for(c, n)) && forall cID: Nat . (cID < 4 && cID != id(c) => !(get_rail(cID, cs) in get_route_for(c, n)));
+	free_route(c, n, cs, res) = !contains_any(remove(res, rail(c)), get_route_for(c, n));
+	free_route(c, r, cs, res) = !contains_any(remove(res, rail(c)), get_route(rail(c), r));
+	free_closest_route(c, n, cs, res) = free_route(c, n, cs, res) &&
+			forall cartID: Nat . (cartID < 4 && cartID != id(c) && free_route(get_cart(cartID, cs), n, cs, res)) => (#get_route_for(c, n) <= #get_route_for(get_cart(cartID, cs), n));
 	
 	filled_carts(cartState(c0, c1, c2, c3, sw, r0, r1, r2)) =
 			if(empty(c0), [], [0]) ++
@@ -343,7 +348,7 @@ act
 	
 	%% CartMover
 	cartDown, requestEmergencyCartMaintenance, cartUp: Nat; % cartID
-	cartRequestMaintenance, requestCartMaintenance, repairCart: Nat; % cartID
+	cartRequestMaintenance, requestCartMaintenance: Nat; % cartID
 	moveCartForward, moveCartBackward: Nat; % cartID
 	cartAtRail: Nat # Rail; % cartID
 	setTargetTo: Nat # Rail; % cartID
@@ -383,17 +388,20 @@ proc
 				% Move carts to target.
 				MoveCartToTarget(cs, reserved, c) +
 				% Cart requires maintenance.
-				(!is_down(c, cs)) -> (  (!get_req_main(c, cs))
-					-> (cartRequestMaintenance(c) . CartMover(set_allow_move(c, false, set_req_main(c, true, cs)), reserved))
-					<> (!get_rec_main(c, cs))
-						-> ( (is_at_repair_bay(get_rail(c, cs))) -> (requestCartMaintenance(c) . CartMover(set_allow_move(c, false, set_rec_main(c, true, cs)), reserved)) )
-						<> repairCart(c) . CartMover(reset_target(c, set_allow_move(c, true, set_req_main(c, false, set_rec_main(c, false, cs)))), reserved)  ) +
+				%(!is_down(c, cs))
+				(forall cID: Nat . cID < 4 => !is_down(cID, cs))
+					-> (  (!get_req_main(c, cs))
+						-> (cartRequestMaintenance(c) . CartMover(set_req_main(c, true, cs), reserved))
+						<> (!get_rec_main(c, cs))
+							-> ( (is_at_repair_bay(get_rail(c, cs)) && has_target(c, cs)) -> (requestCartMaintenance(c) . CartMover(set_allow_move(c, false, set_rec_main(c, true, cs)), reserved)) )
+							<> cartUp(c) . CartMover(reset_target(c, set_allow_move(c, true, set_req_main(c, false, set_rec_main(c, false, cs)))), reserved)  ) +
 				% Cart is broken.
 				(!is_down(c, cs))
-					-> ( (!get_rec_main(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
+					-> ( ((forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
 					<> (!get_rec_main(c, cs))
 						-> (requestEmergencyCartMaintenance(c) . CartMover(set_rec_main(c, true, cs), reserved))
-						<> (cartUp(c) . CartMover(set_allow_move(c, true, set_down(c, false, set_rec_main(c, false, set_req_main(c, false, cs)))), reserved)) +
+						<> (cartUp(c) . CartMover(set_allow_move(c, true, set_down(c, false, set_rec_main(c, false, set_req_main(c, false,
+								if(is_at_repair_bay(get_target(c, cs)), reset_target(c, cs), cs))))), reserved)) +
 				% Begin fill cart.
 				(is_at_furnace(get_rail(c, cs)) && is_at_refinery(get_target(c, cs)) && #filled_carts(cs) < #ref_req(cs) && is_empty(c, cs))
 					-> cartFillCart(c) . CartMover(set_allow_move(c, false, cs), reserved) +
@@ -405,13 +413,14 @@ proc
 				cartRequestIron(r) . CartMover(set_req_iron(r, true, cs), reserved) +
 				sum c: Nat . (c < 4) -> (
 					% Set targets.
-					(!has_target(c, cs)) ->
-						(get_req_main(c, cs))
+					%(!has_target(c, cs)) ->
+					(!exists cID: Nat . (cID < 4 && has_target(cID, cs)))
+						-> (get_req_main(c, cs) && r == 0)
 							% Send cart to maintenance bay.
-							-> ( sum bay: Rail . (bay <= rail(8) && is_at_repair_bay(bay))
+							-> ( sum bay: Rail . (bay <= rail(8) && is_at_repair_bay(bay) && free_route(get_cart(c, cs), bay, cs, reserved))
 								-> setTargetTo(c, bay) . CartMover(set_target(c, bay, cs), add(reserved, get_route(get_rail(c, cs), bay))) )
 							% Set refinery as target.
-							<> (allow_send_cart(cs, c, r) && free_route(get_cart(c, cs), r, cs, reserved)) ->
+							<> (allow_send_cart(cs, c, r) && free_closest_route(get_cart(c, cs), r, cs, reserved)) ->
 								setTargetTo(c, get_refinery_rail(r)) . CartMover(set_target(c, get_refinery_rail(r), cs), add(reserved, get_route_for(get_cart(c, cs), r))) +
 					% End request.
 					(get_target(c, cs) == get_refinery_rail(r) && get_rail(c, cs) == get_refinery_rail(r) && !is_empty(c, cs) && get_req_iron(r, cs))
@@ -444,10 +453,10 @@ init
 	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
-				refineryDown, requestRefineryMaintenance, refineryUp,
+%				refineryDown, requestRefineryMaintenance, refineryUp,
 				cartDown, requestEmergencyCartMaintenance, cartUp,
-				cartRequestMaintenance, requestCartMaintenance, repairCart,
-				furnaceDown, requestFurnaceMaintenance, furnaceUp,
+%				cartRequestMaintenance, requestCartMaintenance,
+%				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
 				moveCartForward, moveCartBackward, cartAtRail,
 				switchRail, setTargetTo,
@@ -460,7 +469,7 @@ init
 					refRequestIron | cartRequestIron -> requestIron,
 					cartRequestDone | refRequestDone -> requestDone
 				},
-				BlastFurnace(0, 0) || Refinery(init_ref_state) || CartMover(init_cart_state, Set2Bag({}))
+				BlastFurnace(0, 0) || Refinery(init_ref_state) || CartMover(init_cart_state, Set2Bag({ rail(0), rail(3), rail(5), rail(7) }))
 			)
 		)
 	);
