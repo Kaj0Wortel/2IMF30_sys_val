@@ -1,0 +1,6 @@
+nu X(openRequests: Int = 0, filledCarts: Int = 0).
+	forall n: Nat.[requestIron(n)](val(openRequests+1>=filledCarts)) && X(openRequests+1, filledCarts) &&
+	forall m: Nat.[requestDone(m)](val(openRequests-1>=filledCarts) && val(openRequests-1>=0)) && X(openRequests-1, filledCarts) &&
+	forall k: Nat.[cartFull(k)]val(openRequests>=filledCarts+1) && X(openRequests, filledCarts+1) &&
+	forall l: Nat.[cartEmpty(l)]val(openRequests>=filledCarts-1) && val(filledCarts-1>=0) && X(openRequests, filledCarts-1) &&
+	forall p: Nat.[!(requestIron(p) || requestDone(p) || cartFull(p) || cartEmpty(p))]val(openRequests>=filledCarts) && X(openRequests, filledCarts)
