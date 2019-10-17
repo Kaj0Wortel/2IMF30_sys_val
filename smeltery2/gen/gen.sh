@@ -37,8 +37,6 @@ prevIn=0;
 prevCores=0;
 first=0
 for arg in "$@"; do
-    echo $arg
-    echo "${arg}"
     found=0
     if [[ $prevOut == 1 ]]; then
         OUT_FILE="${$arg}"
@@ -247,13 +245,13 @@ function verifyFile {
         echo "[ ERROR  ] Could not generate PBES from LTS file!"
         exit 1
     fi
-    
+    if [[ 1 == 1 ]]; then
     (($VERBOSE)) && echo "
 [  INFO  ] GENERATING: PBES -> BES FOR PROPERTY '$name'"
     pbes2bes $VERB_OPT --timings --erase='all' --in="pbes" --out="bes" --rewriter="jittyp" --strategy='3' "$pbesFile" "$besFile"
     
     (($VERBOSE)) && echo "
-[  INFO  ] SOLVING: BES FOR PROPERTY '$name'"
+[  INFO  ] SOLVING: PBES FOR PROPERTY '$name'"
     echo "[  INFO  ] Started  solving property '$name' @ "$(date --rfc-3339=seconds) >> $RESULT_FILE
     bessolve $VERB_OPT --timings --in='bes' --strategy='lf' "$besFile" 2>&1 |
             while read line; do
@@ -269,6 +267,24 @@ function verifyFile {
                 fi
                 echo "[  INFO  ] Finished solving property '$name' @ "$(date --rfc-3339=seconds) >> $RESULT_FILE
             done
+    else
+    (($VERBOSE)) && echo "
+[  INFO  ] SOLVING: PBES FOR PROPERTY '$name'"
+    pbessolve $VERB_OPT --timings --in="pbes"  --rewriter="jittyp" --strategy='1' "$pbesFile" 2>&1 |
+            while read line; do
+                echo $line
+                if [[ $line =~ false ]]; then
+                    echo "[ FAILED ] The property '$name' is invalid!" >> $RESULT_FILE;
+                    
+                elif [[ $line =~ true ]]; then
+                    echo "[   OK   ] The property '$name' is valid!" >> $RESULT_FILE;
+                    
+                else
+                    continue;
+                fi
+                echo "[  INFO  ] Finished solving property '$name' @ "$(date --rfc-3339=seconds) >> $RESULT_FILE
+            done
+    fi
 }
 
 
@@ -287,12 +303,14 @@ elif [[ $VERIFY_OPT == 1 ]]; then
         exit 1
     fi
     
+    if [[ 1 == 1 ]]; then
     (($VERBOSE)) && echo "
 [  INFO  ] GENERATING: LPS -> LTS"
     lps2lts --timings $VERB_OPT $CACHE_OPT "$LPS_FILE" "$LTS_FILE"
     if [[ $? -eq 1 ]]; then
         echo "[ ERROR  ] Could not generate LTS from LPS file!"
         exit 1
+    fi
     fi
     
     i=0

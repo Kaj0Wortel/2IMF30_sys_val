@@ -9,5 +9,4 @@ for file in ../properties/*; do
     fi
 done
 
-for f in "${FILES[@]}"; do echo "$f"; done
-./gen.sh ../smeltery2_spec.mcrl2 --verbose --force --clean --no-backup --verify --num-cores 8 --input "${FILES[@]}"
+./gen.sh ../smeltery2_spec.mcrl2 --verbose --force --no-backup --verify --num-cores 1 --input "${FILES[@]}"

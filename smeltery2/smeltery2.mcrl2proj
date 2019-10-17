@@ -2,5 +2,7 @@
  <spec>smeltery2_spec.mcrl2</spec>
  <properties>
   <property>no deadlock</property>
+  <property>No moving while unloading</property>
+  <property>Open geq filled</property>
  </properties>
 </root>

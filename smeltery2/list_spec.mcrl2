@@ -1,0 +1,34 @@
+map
+	isEmpty: List(Nat) -> Bool;
+	add: List(Nat) # Nat -> List(Nat);
+	remove: List(Nat) # Nat -> List(Nat);
+	inList: List(Nat) # Nat -> Bool;
+
+var
+	l, l0, l1: List(Nat);
+	elem, n: Nat;
+eqn
+	isEmpty(l) = l > [] && l < [];
+
+	add(l, n) = if (inList(l, n), l, l ++ [n]);
+
+	remove([], n) = [];
+	(!isEmpty(l)) -> remove(elem |> l, n) = if (elem == n, l, elem |> remove(l, n));
+
+	inList([], n) = false;
+	(!isEmpty(l)) -> inList(elem |> l, n) = if (elem == n, true, inList(l, n));
+
+
+% Small showcase test process below.
+act
+%    addL, removeL, inListAct: Nat;
+    tmp;
+
+proc Test(l: List(Nat)) = tmp . Test(l);
+%        sum n: Nat . (n <= 2) -> (
+%			addL(n) . Test(add(l, n)) +
+%			removeL(n) . Test(remove(l, n)) +
+%			inList(l, n) -> inListAct(n) . Test(l)
+%		);
+
+init Test([]);

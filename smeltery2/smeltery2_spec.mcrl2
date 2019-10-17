@@ -384,6 +384,7 @@ proc
 	
 	
 	CartMover(cs: CartState, reserved: Bag(Rail)) =
+			(swtch(cs) != switch(0) && !exists cID: Nat . (cID < 4 && has_target(cID, cs))) -> switchRail(0) . CartMover(set_switch(switch(0), cs), reserved) +
 			sum c: Nat . (c < 4) -> (
 				% Move carts to target.
 				MoveCartToTarget(cs, reserved, c) +
@@ -414,7 +415,7 @@ proc
 				sum c: Nat . (c < 4) -> (
 					% Set targets.
 					%(!has_target(c, cs)) ->
-					(!exists cID: Nat . (cID < 4 && has_target(cID, cs)))
+					(swtch(cs) == switch(0) && !exists cID: Nat . (cID < 4 && has_target(cID, cs)))
 						-> (get_req_main(c, cs) && r == 0)
 							% Send cart to maintenance bay.
 							-> ( sum bay: Rail . (bay <= rail(8) && is_at_repair_bay(bay) && free_route(get_cart(c, cs), bay, cs, reserved))
@@ -446,17 +447,15 @@ proc
 				<> (get_rail(c, cs) == get_switch_rail && get_section(r) != 0 && position(get_switch(cs)) + 1 != get_section(r))
 					-> switchRail(Int2Nat(get_section(r) - 1)) . CartMover(set_switch(switch(Int2Nat(get_section(r) - 1)), cs), reserved)
 					<> moveCartForward(c) . CartMover(set_next(c, r, cs), reserved);
-	
-	
 init
-	%hide ({ aCart, requestDone, cartIsFull, setTargetTo },
-	hide({ tmp },
+	hide ({ aCart, requestDone, cartIsFull, setTargetTo, requestRefineryMaintenance, requestEmergencyCartMaintenance, requestCartMaintenance, requestFurnaceMaintenance },
+%	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
-%				refineryDown, requestRefineryMaintenance, refineryUp,
+				refineryDown, requestRefineryMaintenance, refineryUp,
 				cartDown, requestEmergencyCartMaintenance, cartUp,
-%				cartRequestMaintenance, requestCartMaintenance,
-%				furnaceDown, requestFurnaceMaintenance, furnaceUp,
+				cartRequestMaintenance, requestCartMaintenance,
+				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
 				moveCartForward, moveCartBackward, cartAtRail,
 				switchRail, setTargetTo,
