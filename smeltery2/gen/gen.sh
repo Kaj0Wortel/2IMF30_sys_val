@@ -245,7 +245,7 @@ function verifyFile {
         echo "[ ERROR  ] Could not generate PBES from LTS file!"
         exit 1
     fi
-    if [[ 1 == 1 ]]; then
+    if [[ 0 == 1 ]]; then
     (($VERBOSE)) && echo "
 [  INFO  ] GENERATING: PBES -> BES FOR PROPERTY '$name'"
     pbes2bes $VERB_OPT --timings --erase='all' --in="pbes" --out="bes" --rewriter="jittyp" --strategy='3' "$pbesFile" "$besFile"
@@ -303,7 +303,7 @@ elif [[ $VERIFY_OPT == 1 ]]; then
         exit 1
     fi
     
-    if [[ 1 == 1 ]]; then
+    if [[ 0 == 1 ]]; then
     (($VERBOSE)) && echo "
 [  INFO  ] GENERATING: LPS -> LTS"
     lps2lts --timings $VERB_OPT $CACHE_OPT "$LPS_FILE" "$LTS_FILE"
