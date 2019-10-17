@@ -297,7 +297,7 @@ if [[ $LTS_OPT == 1 ]]; then
 elif [[ $VERIFY_OPT == 1 ]]; then
     (($VERBOSE)) && echo "
 [  INFO  ] GENERATING: mCRL2 -> LPS"
-    mcrl22lps --timings $VERB_OPT "$SOURCE" "$LPS_FILE"
+    mcrl22lps --timings $VERB_OPT -- cluster "$SOURCE" "$LPS_FILE"
     if [[ $? -eq 1 ]]; then
         echo "[ ERROR  ] Could not generate LPS from mCRL2 file!"
         exit 1
