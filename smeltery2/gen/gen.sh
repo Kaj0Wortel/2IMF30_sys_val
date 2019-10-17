@@ -37,20 +37,17 @@ prevIn=0;
 prevCores=0;
 first=0
 for arg in "$@"; do
+    echo $arg
+    echo "${arg}"
     found=0
     if [[ $prevOut == 1 ]]; then
-        OUT_FILE=$arg
+        OUT_FILE="${$arg}"
         prevOut=0
         continue
     fi
-    if [[ ${prevIn} -lt 0 ]]; then
-        prevIn=$arg
-        continue
-    fi
-    if [[ ${prevIn} -gt 0 ]]; then
-        VERIFY_INPUT[$VERIFY_INPUT_LENGTH]=$arg
+    if [[ ${prevIn} == 1 ]]; then
+        VERIFY_INPUT[$VERIFY_INPUT_LENGTH]="${arg}"
         ((VERIFY_INPUT_LENGTH++))
-        ((prevIn--))
         continue
     fi
     if [ $prevCores == 1 ]; then
@@ -78,10 +75,11 @@ TYPE
         none
     -V, --verify            Verifies the model with the input property files.
     TYPE OPTIONS
-        -i <AMT> <IN> [IN...], --input <AMT> <IN> [IN...]
-                            Required type option. Denotes the input property files. 'AMT' denotes the number of
-                            input files, and 'IN' denotes a single input file. The files are assumed to be in
-                            '<INPUT>/../properties/<IN>.mcf'
+        -i <IN...>, --input <IN...>
+                            Required type option. Denotes the input property files. 'IN' denotes a
+                            single input file. The input file is assumed to be '<INPUT>/../properties/<IN>[.mcf]'.
+                            This options must be the last option. All other arguments after this option are
+                            assumed to be files.
         -N <NUM>, --num-cores <NUM>
                             The number of cores used for verification. NUM denotes the number of cores.
 "
@@ -141,7 +139,7 @@ TYPE
     elif [ $VERIFY_OPT == 1 ]; then
         if [[ $arg =~ ${REGEX_INPUT} ]]; then
             found=1
-            prevIn="-1"
+            prevIn=1
         fi
         if [[ $arg =~ ${REGEX_CORES} ]]; then
             found=1
@@ -157,14 +155,6 @@ if [[ $1 -eq "" ]]; then
 fi
 if [ $prevOut == 1 ]; then
     echo "[ ERROR  ] Expected an argument after '-o' or '--output'. "$helpSentence
-    exit 1
-fi
-if [[ $prevIn -lt 0 ]]; then
-    echo "[ ERROR  ] Expected a number after 'i' or '--input'. "$helpSentence
-    exit 1
-fi
-if [ $prevIn -gt 0 ]; then
-    echo "[ ERROR  ] Expected "$prevIn" more arguments after '-i' or '--input'. "$helpSentence
     exit 1
 fi
 if [[ $LTS_OPT == 0 && $VERIFY_OPT == 0 ]]; then
@@ -238,8 +228,11 @@ done
 
 
 function verifyFile {
-    sleep 4
-    propertyFile=$(dirname "${SOURCE}")"/properties/$name.mcf"
+    local name="$1"
+    propertyFile=$(dirname "${SOURCE}")"/properties/$name"
+    if [[ $propertyFile =~ [^\.mcf]$ ]]; then
+        propertyFile="$propertyFile.mcf"
+    fi
     if [ ! -f "$propertyFile" ]; then
         echo "[ ERROR  ] The property file '$propertyFile' doesn't exist!"
         exit 1
@@ -266,10 +259,10 @@ function verifyFile {
             while read line; do
                 echo $line
                 if [[ $line =~ false ]]; then
-                    echo "[WARNING ] The property '$name' is invalid!" >> $RESULT_FILE;
+                    echo "[ FAILED ] The property '$name' is invalid!" >> $RESULT_FILE;
                     
                 elif [[ $line =~ true ]]; then
-                    echo "[  INFO  ] The property '$name' is valid!" >> $RESULT_FILE;
+                    echo "[   OK   ] The property '$name' is valid!" >> $RESULT_FILE;
                     
                 else
                     continue;
@@ -314,8 +307,8 @@ elif [[ $VERIFY_OPT == 1 ]]; then
         do
             sleep 1
         done
-        name="${VERIFY_INPUT[$i]}"
-        verifyFile $name &
+        echo "NAME: ""${VERIFY_INPUT[$i]}"
+        verifyFile "${VERIFY_INPUT[$i]}" &
         ((i++))
     done
     wait
@@ -323,7 +316,7 @@ fi
 
 if [ $CLEAN = 1 ]; then
     for file in $ROOT/gen/$NAME*; do
-        if [[ ! file =~ ^.*evidence.lts$ ]]; then
+        if [[ ! file =~ ^.*evidence.lts$ && -f $file ]]; then
             rm -f $VERB_OPT "$file"
         fi
     done
