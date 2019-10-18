@@ -473,7 +473,11 @@ init
 		)
 	);
 
-
-
+sort cartInit: Nat -> Nat;
+var i;
+eqn cartInit(0)=0;
+	cartInit(1)=3;
+	cartInit(2)=5;
+	cartInit(3)=7;
 
 
