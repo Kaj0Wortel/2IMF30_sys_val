@@ -448,14 +448,14 @@ proc
 					-> switchRail(Int2Nat(get_section(r) - 1)) . CartMover(set_switch(switch(Int2Nat(get_section(r) - 1)), cs), reserved)
 					<> moveCartForward(c) . CartMover(set_next(c, r, cs), reserved);
 init
-	hide ({ aCart, requestDone, cartIsFull, setTargetTo, requestRefineryMaintenance, requestEmergencyCartMaintenance, requestCartMaintenance, requestFurnaceMaintenance },
-%	hide({ tmp },
+%	hide ({ aCart, requestDone, cartIsFull, setTargetTo, requestRefineryMaintenance, requestEmergencyCartMaintenance, requestCartMaintenance, requestFurnaceMaintenance },
+	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
-				refineryDown, requestRefineryMaintenance, refineryUp,
-				cartDown, requestEmergencyCartMaintenance, cartUp,
+%				refineryDown, requestRefineryMaintenance, refineryUp,
+%				cartDown, requestEmergencyCartMaintenance, cartUp,
 %				cartRequestMaintenance, requestCartMaintenance,
-				furnaceDown, requestFurnaceMaintenance, furnaceUp,
+%				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
 				moveCartForward, moveCartBackward, cartAtRail,
 				switchRail, setTargetTo,
