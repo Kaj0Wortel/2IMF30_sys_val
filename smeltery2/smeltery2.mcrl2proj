@@ -2,7 +2,7 @@
  <spec>smeltery2_spec.mcrl2</spec>
  <properties>
   <property>R1 No cart collision</property>
-  <property>R2</property>
+  <property>R2 Request maintain cart</property>
   <property>R3</property>
   <property>R4</property>
   <property>R5</property>
@@ -15,7 +15,7 @@
   <property>R13</property>
   <property>R14</property>
   <property>R15</property>
-  <property>R16 Only switch rail if no cart on railswitch</property>
+  <property>R16 No cart on active switch</property>
   <property>no deadlock</property>
   <property>No moving while unloading</property>
  </properties>

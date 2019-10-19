@@ -454,7 +454,7 @@ init
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
 %				refineryDown, requestRefineryMaintenance, refineryUp,
-%				cartDown, requestEmergencyCartMaintenance, cartUp,
+				cartDown, requestEmergencyCartMaintenance, cartUp,
 %				cartRequestMaintenance, requestCartMaintenance,
 %				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
