@@ -473,11 +473,36 @@ init
 		)
 	);
 
-sort cartInit: Nat -> Nat;
-var i;
+
+
+% Functions and maps used in modal formulas.
+map cartInit: Nat -> Nat;
+	refineryInit: Nat -> Nat;
+var i: Nat;
 eqn cartInit(0)=0;
 	cartInit(1)=3;
 	cartInit(2)=5;
 	cartInit(3)=7;
+	refineryInit(0)=3;
+	refineryInit(1)=5;
+	refineryInit(2)=7;
 
+map
+	isEmpty: List(Nat) -> Bool;
+	add: List(Nat) # Nat -> List(Nat);
+	remove: List(Nat) # Nat -> List(Nat);
+	inList: List(Nat) # Nat -> Bool;
 
+var
+	l, l0, l1: List(Nat);
+	elem, n: Nat;
+eqn
+	isEmpty(l) = l > [] && l < [];
+
+	add(l, n) = if (inList(l, n), l, l ++ [n]);
+
+	remove([], n) = [];
+	(!isEmpty(l)) -> remove(elem |> l, n) = if (elem == n, l, elem |> remove(l, n));
+
+	inList([], n) = false;
+	(!isEmpty(l)) -> inList(elem |> l, n) = if (elem == n, true, inList(l, n));
