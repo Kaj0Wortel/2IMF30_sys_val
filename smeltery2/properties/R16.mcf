@@ -1,6 +1,0 @@
-nu X(RailSwitch: Nat=2, CartLocation: Nat -> Nat=cartInit).
-	forall n:Nat . val(n < 4) => forall m:Nat . val(m < 8) => [cartAtRail(n, rail(m))]X(RailSwitch, CartLocation[n->m]) &&
-	forall r:Nat . val(r < 3) => [switchRail(r)] forall c:Nat . val(c < 4) => val(CartLocation(c) != RailSwitch) && X(RailSwitch, CartLocation) &&
-	forall z:Nat . val(z < 4) => forall x:Nat . val(x<8) => forall v:Nat . val(v<3) => [!(cartAtRail(z,rail(x)) || switchRail(v))]X(RailSwitch, CartLocation)
-	
-	
