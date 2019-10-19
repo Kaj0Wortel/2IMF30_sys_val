@@ -1,0 +1,15 @@
+ nu X(sw: Switch = init_switch, curCartLoc: Nat -> Nat = cartInit, nextCartLoc: Nat -> Nat = cartInit) .
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] X(sw, curCartLoc[c -> r], nextCartLoc) ) &&
+	( forall c: Nat . val(c < 4) => forall other: Nat . val(other < 4 && other != c) => [moveCartForward(c)] (
+			val(curCartLoc(other) != id(next(rail(curCartLoc(c)), sw))) &&
+			val(nextCartLoc(other) != id(next(rail(curCartLoc(c)), sw))) &&
+			X(sw, curCartLoc, nextCartLoc[c -> id(next(rail(curCartLoc(c)), sw))])
+		)
+	) &&
+	( forall c: Nat . val(c < 4) => forall other: Nat . val(other < 4 && other != c) => [moveCartBackward(c)]  (
+			val(curCartLoc(other) != id(prev(rail(curCartLoc(c))))) &&
+			val(nextCartLoc(other) != id(prev(rail(curCartLoc(c))))) &&
+			X(sw, curCartLoc, nextCartLoc[c -> id(prev(rail(curCartLoc(c))))])
+		)
+	) &&
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [!(cartAtRail(c, rail(r)) || moveCartForward(c) || moveCartBackward(c))] X(sw, curCartLoc, nextCartLoc) )

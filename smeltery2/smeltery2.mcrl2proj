@@ -1,7 +1,7 @@
 <root>
  <spec>smeltery2_spec.mcrl2</spec>
  <properties>
-  <property>R1</property>
+  <property>R1 No cart collision</property>
   <property>R2</property>
   <property>R3</property>
   <property>R4</property>
