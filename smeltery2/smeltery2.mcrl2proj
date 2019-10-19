@@ -1,14 +1,23 @@
 <root>
  <spec>smeltery2_spec.mcrl2</spec>
  <properties>
+  <property>R1</property>
+  <property>R2</property>
+  <property>R3</property>
+  <property>R4</property>
+  <property>R5</property>
+  <property>R6</property>
   <property>R7 Open geq filled</property>
-  <property>Open geq filled</property>
-  <property>11</property>
-  <property>12</property>
-  <property>13</property>
-  <property>14</property>
-  <property>15</property>
-  <property>16</property>
+  <property>R8</property>
+  <property>R9</property>
+  <property>R10</property>
+  <property>R12</property>
+  <property>R13</property>
+  <property>R14</property>
+  <property>R15</property>
+  <property>R16</property>
   <property>R16 Only switch rail if no cart on railswitch</property>
+  <property>no deadlock</property>
+  <property>No moving while unloading</property>
  </properties>
 </root>
