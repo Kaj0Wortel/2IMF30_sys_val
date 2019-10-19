@@ -3,9 +3,9 @@
  <properties>
   <property>R1 No cart collision</property>
   <property>R2 Request maintain cart</property>
-  <property>R3</property>
+  <property>R3 If a refinery goes down eventually it will request maintenance</property>
   <property>R4</property>
-  <property>R5</property>
+  <property>R5 if a request for iron is made it eventually will be fulfilled</property>
   <property>R6</property>
   <property>R7 Open geq filled</property>
   <property>R8</property>
