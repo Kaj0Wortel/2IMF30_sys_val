@@ -440,9 +440,9 @@ proc
 					<> cartAtRail(c, get_next(c, cs)) . CartMover(set_rail(c, get_next(c, cs), cs), remove(reserved, get_rail(c, cs))) );
 	
 	MoveCartTo(cs: CartState, reserved: Bag(Rail), c: Nat, r: Rail) =
-			( r == get_switch_rail && (get_section(get_target(c, cs)) == 0 || get_section(next(get_switch_rail, get_switch(cs))) != get_section(get_target(c, cs))) )
+			( r == get_switch_rail && get_section(get_target(c, cs)) != 0 && get_section(next(get_switch_rail, swtch(cs))) != get_section(get_target(c, cs)) )
 				% Switch rail
-				-> switchRail(Int2Nat(get_section(r) - 1)) . CartMover(set_switch(switch(Int2Nat(get_section(r) - 1)), cs), reserved)
+				-> switchRail(Int2Nat(get_section(get_target(c, cs)) - 1)) . CartMover(set_switch(switch(Int2Nat(get_section(get_target(c, cs)) - 1)), cs), reserved)
 				<> (allow_prev(get_rail(c, cs)) && prev(get_rail(c, cs)) == r)
 					% Move backward.
 					-> moveCartBackward(c) . CartMover(set_next(c, r, cs), reserved)
