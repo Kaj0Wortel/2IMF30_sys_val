@@ -4,6 +4,6 @@
   <property>no deadlock</property>
   <property>No moving while unloading</property>
   <property>R7 Open geq filled</property>
-  <property>Only switch rail if no cart on railswitch</property>
+  <property>R16 Only switch rail if no cart on railswitch</property>
  </properties>
 </root>

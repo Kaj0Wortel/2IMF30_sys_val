@@ -310,9 +310,9 @@ eqn
 			if(empty(c2), [], [2]) ++
 			if(empty(c3), [], [3]);
 	ref_req(cartState(c0, c1, c2, c3, sw, r0, r1, r2)) =
-			if(r0, [], [0]) ++
-			if(r1, [], [1]) ++
-			if(r2, [], [2]);
+			if(r0, [0], []) ++
+			if(r1, [1], []) ++
+			if(r2, [2], []);
 	
 	allow_send_cart(cs, cID, rID) =
 			get_req_iron(rID, cs) && get_allow_move(cID, cs) && !get_req_main(cID, cs) &&
@@ -440,12 +440,13 @@ proc
 					<> cartAtRail(c, get_next(c, cs)) . CartMover(set_rail(c, get_next(c, cs), cs), remove(reserved, get_rail(c, cs))) );
 	
 	MoveCartTo(cs: CartState, reserved: Bag(Rail), c: Nat, r: Rail) =
-			(allow_prev(get_rail(c, cs)) && prev(get_rail(c, cs)) == r)
-				% Move backward.
-				-> moveCartBackward(c) . CartMover(set_next(c, r, cs), reserved)
-				% Move forward.
-				<> (get_rail(c, cs) == get_switch_rail && get_section(r) != 0 && position(get_switch(cs)) + 1 != get_section(r))
-					-> switchRail(Int2Nat(get_section(r) - 1)) . CartMover(set_switch(switch(Int2Nat(get_section(r) - 1)), cs), reserved)
+			( r == get_switch_rail && (get_section(get_target(c, cs)) == 0 || get_section(next(get_switch_rail, get_switch(cs))) != get_section(get_target(c, cs))) )
+				% Switch rail
+				-> switchRail(Int2Nat(get_section(r) - 1)) . CartMover(set_switch(switch(Int2Nat(get_section(r) - 1)), cs), reserved)
+				<> (allow_prev(get_rail(c, cs)) && prev(get_rail(c, cs)) == r)
+					% Move backward.
+					-> moveCartBackward(c) . CartMover(set_next(c, r, cs), reserved)
+					% Move forward.
 					<> moveCartForward(c) . CartMover(set_next(c, r, cs), reserved);
 init
 %	hide ({ aCart, requestDone, cartIsFull, setTargetTo, requestRefineryMaintenance, requestEmergencyCartMaintenance, requestCartMaintenance, requestFurnaceMaintenance },
