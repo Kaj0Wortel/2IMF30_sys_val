@@ -398,7 +398,7 @@ proc
 							<> cartUp(c) . CartMover(reset_target(c, set_allow_move(c, true, set_req_main(c, false, set_rec_main(c, false, cs)))), reserved)  ) +
 				% Cart is broken.
 				(!is_down(c, cs))
-					-> ( ((forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
+					-> ( ((forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs) && has_target(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
 					<> (!get_rec_main(c, cs))
 						-> (requestEmergencyCartMaintenance(c) . CartMover(set_rec_main(c, true, cs), reserved))
 						<> (cartUp(c) . CartMover(set_allow_move(c, true, set_down(c, false, set_rec_main(c, false, set_req_main(c, false,
@@ -453,10 +453,10 @@ init
 	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
-				refineryDown, requestRefineryMaintenance, refineryUp,
+%				refineryDown, requestRefineryMaintenance, refineryUp,
 %				cartDown, requestEmergencyCartMaintenance, cartUp,
 %				cartRequestMaintenance, requestCartMaintenance,
-				furnaceDown, requestFurnaceMaintenance, furnaceUp,
+%				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
 				moveCartForward, moveCartBackward, cartAtRail,
 				switchRail, setTargetTo,
