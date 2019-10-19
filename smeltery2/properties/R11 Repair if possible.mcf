@@ -1,0 +1,6 @@
+nu X(reqMain: Nat -> Bool = {0 -> false, 1 -> false, 2 -> false, 3 -> false,
+	 isAtBay: Nat -> Bool = {0 -> false, 1 -> false, 2 -> false, 3 -> false}) . true
+%	forall c: Nat . (c < 4) [cartRequestMaintenance(c)] X(reqMain[c -> true], isAtBay) &&
+%	forall c: Nat . (c < 4) [cartDown(c)] X(reqMain[c -> false], isAtBay)
+	
+%is_at_repair_bay
