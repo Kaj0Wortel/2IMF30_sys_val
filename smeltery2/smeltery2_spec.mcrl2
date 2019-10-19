@@ -473,8 +473,8 @@ init
 		)
 	);
 
-sort cartInit: Nat -> Nat;
-var i;
+map cartInit: Nat -> Nat;
+var i: Nat;
 eqn cartInit(0)=0;
 	cartInit(1)=3;
 	cartInit(2)=5;
