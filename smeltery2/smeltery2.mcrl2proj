@@ -12,6 +12,6 @@
   <property>12</property>
   <property>11</property>
   <property>R7 Open geq filled</property>
-  <property>Only switch rail if no cart on railswitch</property>
+  <property>R16 Only switch rail if no cart on railswitch</property>
  </properties>
 </root>
