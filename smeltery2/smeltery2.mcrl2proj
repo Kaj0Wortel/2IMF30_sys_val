@@ -3,6 +3,7 @@
  <properties>
   <property>no deadlock</property>
   <property>No moving while unloading</property>
+<<<<<<< HEAD
   <property>Open geq filled</property>
   <property>16</property>
   <property>15</property>
@@ -10,5 +11,7 @@
   <property>13</property>
   <property>12</property>
   <property>11</property>
+  <property>R7 Open geq filled</property>
+  <property>Only switch rail if no cart on railswitch</property>
  </properties>
 </root>
