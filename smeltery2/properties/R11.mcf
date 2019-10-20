@@ -1,5 +1,0 @@
-nu X(CartLocation: Nat -> Nat=initCart, CartMaintenanceRequests: List(Nat)=[], MaintenanceBays: List(Nat)=maintInit) .
-	forall c1: Nat . val(c1<4) => forall r1: Nat . val(r1<8) [cartOnRail(c1,rail(r1))]X(CartLocation[c1->r1], CartMaintenanceRequests, MaintenanceBays) &&
-	forall c2: Nat . val(c2<4) => [cartRequestMaintenance(c2)]X(CartLocation, add(CartMaintenanceRequests, c2), MaintenanceBays) &&
-	forall c3: Nat . val(c3<4) => [cartUp(c3)]X(CartLocation, remove(CartMaintenanceRequests, c2), MaintenanceBays) &&
-	forall c4: Nat . val(c4<4) => exists r2: Nat . (r2<8) && val(inList(MaintenanceBays, r2) && inList(CartMaintenanceRequests, c4) && CartLocation(c4)==r2) => <!requestCartMaintenance(c4) . requestCartMaintenance(c4)>true

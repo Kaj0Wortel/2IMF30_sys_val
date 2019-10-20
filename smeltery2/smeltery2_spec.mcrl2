@@ -398,8 +398,8 @@ proc
 							<> cartUp(c) . CartMover(reset_target(c, set_allow_move(c, true, set_req_main(c, false, set_rec_main(c, false, cs)))), reserved)  ) +
 				% Cart is broken.
 				(!is_down(c, cs))
-					-> ( ((forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
-					<> (!get_rec_main(c, cs) && has_target(c, cs))
+					-> ( ((forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs) && has_target(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
+					<> (!get_rec_main(c, cs))
 						-> (requestEmergencyCartMaintenance(c) . CartMover(set_rec_main(c, true, cs), reserved))
 						<> (cartUp(c) . CartMover(set_allow_move(c, true, set_down(c, false, set_rec_main(c, false, set_req_main(c, false,
 								if(is_at_repair_bay(get_target(c, cs)), reset_target(c, cs), cs))))), reserved)) +
@@ -454,7 +454,7 @@ init
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
 %				refineryDown, requestRefineryMaintenance, refineryUp,
-				cartDown, requestEmergencyCartMaintenance, cartUp,
+%				cartDown, requestEmergencyCartMaintenance, cartUp,
 %				cartRequestMaintenance, requestCartMaintenance,
 %				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
@@ -478,20 +478,31 @@ init
 % Functions and maps used in modal formulas.
 map cartInit: Nat -> Nat;
 	refineryInit: Nat -> Nat;
-var i: Nat;
-eqn cartInit(0)=0;
-	cartInit(1)=3;
-	cartInit(2)=5;
-	cartInit(3)=7;
-	refineryInit(0)=3;
-	refineryInit(1)=5;
-	refineryInit(2)=7;
+	initBool: Bool -> (Nat -> Bool);
+
+var n: Nat;
+	b: Bool;
+
+eqn
+	cartInit(0) = 0;
+	cartInit(1) = 3;
+	cartInit(2) = 5;
+	cartInit(3) = 7;
+	refineryInit(0) = 3;
+	refineryInit(1) = 5;
+	refineryInit(2) = 7;
+	initBoolTrue(n) = true;
+	initBoolFalse(n) = false;
+	initBool(true) = initBoolTrue;
+	initBool(false) = initBoolFalse;
 
 map
 	isEmpty: List(Nat) -> Bool;
 	add: List(Nat) # Nat -> List(Nat);
 	remove: List(Nat) # Nat -> List(Nat);
 	inList: List(Nat) # Nat -> Bool;
+	initBoolTrue: Nat -> Bool;
+	initBoolFalse: Nat -> Bool;
 
 var
 	l, l0, l1: List(Nat);
@@ -506,3 +517,4 @@ eqn
 
 	inList([], n) = false;
 	(!isEmpty(l)) -> inList(elem |> l, n) = if (elem == n, true, inList(l, n));
+	
