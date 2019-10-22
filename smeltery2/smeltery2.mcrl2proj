@@ -8,7 +8,7 @@
   <property>R5 if a request for iron is made it eventually will be fulfilled</property>
   <property>R6 Filled cart will deliver</property>
   <property>R7 Open geq filled</property>
-  <property>R8</property>
+  <property>R8 Cart not filled if maintenance</property>
   <property>R9 Empty for maintenance</property>
   <property>R10</property>
   <property>R11 Repair if possible</property>
