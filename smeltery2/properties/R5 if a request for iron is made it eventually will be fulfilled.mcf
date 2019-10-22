@@ -1,1 +1,1 @@
-forall a : Nat. val(a<3) => [true* . requestIron(a) . (!requestDone(a))*]<true* . requestDone(a)>true 
+forall r : Nat. val(a<3) => [true* . requestIron(r) . (!requestDone(a))*] <(!requestDone(a))* . requestDone(a)> true 
