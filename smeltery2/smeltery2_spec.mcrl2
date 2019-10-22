@@ -342,8 +342,7 @@ act
 	
 	%% Request actions.
 	refRequestIron, cartRequestIron, requestIron: Nat; % refineryID
-	bufRefRequestIron, bufCartRequestIron, requestIronBuf: Nat; % refineryID
-	bufRequestDone, cartRequestDone, refRequestDone, requestDone: Nat; % refineryID
+	cartRequestDone, refRequestDone, requestDone: Nat; % refineryID
 	
 	
 	%% CartMover
