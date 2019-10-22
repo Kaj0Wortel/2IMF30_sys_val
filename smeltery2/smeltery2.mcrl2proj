@@ -12,10 +12,10 @@
   <property>R9</property>
   <property>R10</property>
   <property>R11 Repair if possible</property>
-  <property>R12</property>
-  <property>R13</property>
-  <property>R14</property>
-  <property>R15</property>
+  <property>R12 Begin unloading</property>
+  <property>R13 Dont move while loading</property>
+  <property>R14 Dont move while unloading</property>
+  <property>R15 Dont pour is no empty cart</property>
   <property>R16 No cart on active switch</property>
   <property>no deadlock</property>
   <property>No moving while unloading</property>

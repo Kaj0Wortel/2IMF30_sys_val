@@ -453,10 +453,10 @@ init
 	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
-				refineryDown, requestRefineryMaintenance, refineryUp,
+%				refineryDown, requestRefineryMaintenance, refineryUp,
 %				cartDown, requestEmergencyCartMaintenance, cartUp,
 %				cartRequestMaintenance, requestCartMaintenance,
-				furnaceDown, requestFurnaceMaintenance, furnaceUp,
+%				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
 				moveCartForward, moveCartBackward, cartAtRail,
 				switchRail, setTargetTo,
@@ -478,7 +478,10 @@ init
 % Functions and maps used in modal formulas.
 map cartInit: Nat -> Nat;
 	refineryInit: Nat -> Nat;
+	initBoolTrue: Nat -> Bool;
+	initBoolFalse: Nat -> Bool;
 	initBool: Bool -> (Nat -> Bool);
+	initIsAtRefinery: Nat -> Bool;
 
 var n: Nat;
 	b: Bool;
@@ -495,14 +498,16 @@ eqn
 	initBoolFalse(n) = false;
 	initBool(true) = initBoolTrue;
 	initBool(false) = initBoolFalse;
+	initIsAtRefinery(0) = false;
+	initIsAtRefinery(1) = true;
+	initIsAtRefinery(2) = true;
+	initIsAtRefinery(3) = true;
 
 map
 	isEmpty: List(Nat) -> Bool;
 	add: List(Nat) # Nat -> List(Nat);
 	remove: List(Nat) # Nat -> List(Nat);
 	inList: List(Nat) # Nat -> Bool;
-	initBoolTrue: Nat -> Bool;
-	initBoolFalse: Nat -> Bool;
 
 var
 	l, l0, l1: List(Nat);
