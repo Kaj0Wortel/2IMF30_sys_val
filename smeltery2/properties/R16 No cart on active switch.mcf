@@ -1,4 +1,4 @@
 nu X(cartLocation: Nat -> Nat = cartInit) .
 	( forall c1: Nat . val(c1 < 4) => forall r1: Nat . val(r1 <= 8) => [cartAtRail(c1, rail(r1))] X(cartLocation[c1 -> r1]) ) &&
 	( forall c2: Nat . val(c2 < 4) => forall s1: Nat . val(s1 < 3) => [switchRail(s1)] val(cartLocation(c2) != 2) && X(cartLocation) ) &&
-	( forall c3: Nat . val(c3 < 4) => forall r2: Nat . val(r2 <= 8) => forall s2: Nat . val(s2 < 3) => [!(cartAtRail(c3, rail(r2)) || switchRail(s2))] X(cartLocation) )
+	( forall c3: Nat . val(c3 < 4) => forall r2: Nat . val(r2 <= 8) => forall s2: Nat . val(s2 < 3) => [!cartAtRail(c3, rail(r2)) + !switchRail(s2)] X(cartLocation) )
