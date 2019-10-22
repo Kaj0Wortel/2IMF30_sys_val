@@ -173,11 +173,93 @@ eqn
 	(6 < n && n <= 8) -> get_section(rail(n)) = 3;
 	
 	get_route(c) = get_route(rail(c), target(c));
+%	get_route(pos, pos) = [];
+%	( (get_section(pos) != get_section(tar) && get_section(pos) != 0) || (get_section(pos) == get_section(pos) && tar < pos) )
+%			-> get_route(pos, tar) = prev(pos) |> get_route(prev(pos), tar);
+%	!( (get_section(pos) != get_section(tar) && get_section(pos) != 0) || (get_section(pos) == get_section(pos) && tar < pos) )
+%			-> get_route(pos, tar) = next(pos, get_switch_for_target(tar)) |> get_route(next(pos, get_switch_for_target(tar)), tar);
 	get_route(pos, pos) = [];
-	( (get_section(pos) != get_section(tar) && get_section(pos) != 0) || (get_section(pos) == get_section(pos) && tar < pos) )
-			-> get_route(pos, tar) = prev(pos) |> get_route(prev(pos), tar);
-	!( (get_section(pos) != get_section(tar) && get_section(pos) != 0) || (get_section(pos) == get_section(pos) && tar < pos) )
-			-> get_route(pos, tar) = next(pos, get_switch_for_target(tar)) |> get_route(next(pos, get_switch_for_target(tar)), tar);
+	get_route(rail(0), rail(1)) = [rail(1)];
+	get_route(rail(0), rail(2)) = [rail(1), rail(2)];
+	get_route(rail(0), rail(3)) = [rail(1), rail(2), rail(3)];
+	get_route(rail(0), rail(4)) = [rail(1), rail(2), rail(3), rail(4)];
+	get_route(rail(0), rail(5)) = [rail(1), rail(2), rail(5)];
+	get_route(rail(0), rail(6)) = [rail(1), rail(2), rail(5), rail(6)];
+	get_route(rail(0), rail(7)) = [rail(1), rail(2), rail(7)];
+	get_route(rail(0), rail(8)) = [rail(1), rail(2), rail(7), rail(8)];
+	
+	get_route(rail(1), rail(0)) = [rail(0)];
+	get_route(rail(1), rail(2)) = [rail(2)];
+	get_route(rail(1), rail(3)) = [rail(2), rail(3)];
+	get_route(rail(1), rail(4)) = [rail(2), rail(3), rail(4)];
+	get_route(rail(1), rail(5)) = [rail(2), rail(5)];
+	get_route(rail(1), rail(6)) = [rail(2), rail(5), rail(6)];
+	get_route(rail(1), rail(7)) = [rail(2), rail(7)];
+	get_route(rail(1), rail(8)) = [rail(2), rail(7), rail(8)];
+	
+	get_route(rail(2), rail(0)) = [rail(1), rail(0)];
+	get_route(rail(2), rail(1)) = [rail(1)];
+	get_route(rail(2), rail(3)) = [rail(3)];
+	get_route(rail(2), rail(4)) = [rail(3), rail(4)];
+	get_route(rail(2), rail(5)) = [rail(5)];
+	get_route(rail(2), rail(6)) = [rail(5), rail(6)];
+	get_route(rail(2), rail(7)) = [rail(7)];
+	get_route(rail(2), rail(8)) = [rail(7), rail(8)];
+	
+	get_route(rail(3), rail(0)) = [rail(2), rail(1), rail(0)];
+	get_route(rail(3), rail(1)) = [rail(2), rail(1)];
+	get_route(rail(3), rail(2)) = [rail(2)];
+	get_route(rail(3), rail(4)) = [rail(4)];
+	get_route(rail(3), rail(5)) = [rail(2), rail(5)];
+	get_route(rail(3), rail(6)) = [rail(2), rail(5), rail(6)];
+	get_route(rail(3), rail(7)) = [rail(2), rail(7)];
+	get_route(rail(3), rail(8)) = [rail(2), rail(7), rail(8)];
+	
+	get_route(rail(4), rail(0)) = [rail(3), rail(2), rail(1), rail(0)];
+	get_route(rail(4), rail(1)) = [rail(3), rail(2), rail(1)];
+	get_route(rail(4), rail(2)) = [rail(3), rail(2)];
+	get_route(rail(4), rail(3)) = [rail(3)];
+	get_route(rail(4), rail(5)) = [rail(3), rail(2), rail(5)];
+	get_route(rail(4), rail(6)) = [rail(3), rail(2), rail(5), rail(6)];
+	get_route(rail(4), rail(7)) = [rail(3), rail(2), rail(7)];
+	get_route(rail(4), rail(8)) = [rail(3), rail(2), rail(7), rail(8)];
+	
+	get_route(rail(5), rail(0)) = [rail(2), rail(1), rail(0)];
+	get_route(rail(5), rail(1)) = [rail(2), rail(1)];
+	get_route(rail(5), rail(2)) = [rail(2)];
+	get_route(rail(5), rail(3)) = [rail(2), rail(3)];
+	get_route(rail(5), rail(4)) = [rail(2), rail(3), rail(4)];
+	get_route(rail(5), rail(6)) = [rail(6)];
+	get_route(rail(5), rail(7)) = [rail(2), rail(7)];
+	get_route(rail(5), rail(8)) = [rail(2), rail(7), rail(8)];
+	
+	get_route(rail(6), rail(0)) = [rail(5), rail(2), rail(1), rail(0)];
+	get_route(rail(6), rail(1)) = [rail(5), rail(2), rail(1)];
+	get_route(rail(6), rail(2)) = [rail(5), rail(2)];
+	get_route(rail(6), rail(3)) = [rail(5), rail(2), rail(3)];
+	get_route(rail(6), rail(4)) = [rail(5), rail(2), rail(3), rail(4)];
+	get_route(rail(6), rail(5)) = [rail(5)];
+	get_route(rail(6), rail(7)) = [rail(5), rail(2), rail(7)];
+	get_route(rail(6), rail(8)) = [rail(5), rail(2), rail(7), rail(8)];
+	
+	get_route(rail(7), rail(0)) = [rail(2), rail(1), rail(0)];
+	get_route(rail(7), rail(1)) = [rail(2), rail(1)];
+	get_route(rail(7), rail(2)) = [rail(2)];
+	get_route(rail(7), rail(3)) = [rail(2), rail(3)];
+	get_route(rail(7), rail(4)) = [rail(2), rail(3), rail(4)];
+	get_route(rail(7), rail(5)) = [rail(2), rail(5)];
+	get_route(rail(7), rail(6)) = [rail(2), rail(5), rail(6)];
+	get_route(rail(7), rail(8)) = [rail(8)];
+	
+	get_route(rail(8), rail(0)) = [rail(7), rail(2), rail(1), rail(0)];
+	get_route(rail(8), rail(1)) = [rail(7), rail(2), rail(1)];
+	get_route(rail(8), rail(2)) = [rail(7), rail(2)];
+	get_route(rail(8), rail(3)) = [rail(7), rail(2), rail(3)];
+	get_route(rail(8), rail(4)) = [rail(7), rail(2), rail(3), rail(4)];
+	get_route(rail(8), rail(5)) = [rail(7), rail(2), rail(5)];
+	get_route(rail(8), rail(6)) = [rail(7), rail(2), rail(5), rail(6)];
+	get_route(rail(8), rail(7)) = [rail(7)];
+	
 	
 	(id(r) <= 4) -> get_switch_for_target(r) = switch(0);
 	(id(r) == 5 || id(r) == 6) -> get_switch_for_target(r) = switch(1);
@@ -186,7 +268,6 @@ eqn
 	init_switch = switch(0);
 	get_switch_rail = rail(2);
 	get_pos(switch(n)) = n;
-	
 
 
 var s, s0, s1, s2: Nat;
