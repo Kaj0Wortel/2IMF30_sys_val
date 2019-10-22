@@ -1,1 +1,0 @@
-forall cc : Nat . val(cc< 4) => [true*.cartFull(cc).(! cartEmpty(cc))*]<true*.cartEmpty(cc).(!(cartEmpty(cc)||cartFull(cc)))*.cartFull(cc)>true

@@ -342,8 +342,7 @@ act
 	
 	%% Request actions.
 	refRequestIron, cartRequestIron, requestIron: Nat; % refineryID
-	bufRefRequestIron, bufCartRequestIron, requestIronBuf: Nat; % refineryID
-	bufRequestDone, cartRequestDone, refRequestDone, requestDone: Nat; % refineryID
+	cartRequestDone, refRequestDone, requestDone: Nat; % refineryID
 	
 	
 	%% CartMover
@@ -389,9 +388,8 @@ proc
 				% Move carts to target.
 				MoveCartToTarget(cs, reserved, c) +
 				% Cart requires maintenance.
-				%(!is_down(c, cs))
 				(forall cID: Nat . (cID < 4) => !is_down(cID, cs))
-					-> (  (!get_req_main(c, cs) && has_target(c, cs))
+					-> (  (!get_req_main(c, cs) && !has_target(c, cs))
 						-> (cartRequestMaintenance(c) . CartMover(set_req_main(c, true, cs), reserved))
 						<> (!get_rec_main(c, cs))
 							-> ( (is_at_repair_bay(get_rail(c, cs)) && has_target(c, cs)) -> (requestCartMaintenance(c) . CartMover(set_allow_move(c, false, set_rec_main(c, true, cs)), reserved)) )
