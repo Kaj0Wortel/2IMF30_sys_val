@@ -1,1 +1,1 @@
- forall a : Nat. val(a<3) => [true* . refineryDown(a) . (!requestRefineryMaintenance(a))*]<true* . requestRefineryMaintenance(a)>true
+ forall r : Nat. val(r < 3) => [true* . refineryDown(r) . (!requestRefineryMaintenance(r))*] <(!requestRefineryMaintenance(r))* . requestRefineryMaintenance(r)> true
