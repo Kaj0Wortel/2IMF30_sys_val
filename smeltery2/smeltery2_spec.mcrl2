@@ -505,7 +505,7 @@ proc
 					% End request.
 					(get_target(c, cs) == get_refinery_rail(r) && get_rail(c, cs) == get_refinery_rail(r) && !is_empty(c, cs) && get_req_iron(r, cs))
 						-> cartACart(r, c) . CartMover(set_allow_move(c, false, set_req_iron(r, false, cs)), reserved) +
-					(get_rail(c, cs) == get_refinery_rail(r)) -> cartRequestDone(r) . CartMover(reset_target(c, set_allow_move(c, true, cs)), reserved)
+					(get_rail(c, cs) == get_refinery_rail(r)) -> cartRequestDone(r) . CartMover(set_empty(c, true, reset_target(c, set_allow_move(c, true, cs))), reserved)
 				)
 			);
 	
