@@ -20,5 +20,5 @@ for f in "$@"; do
         lps2lts "evidence/smeltery2_$f.evidence.lps" "evidence/smeltery2_$f.evidence.lts"
     fi
 done
-
 rm -f "smeltery2.lps"
+less result.txt
