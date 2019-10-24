@@ -17,7 +17,6 @@ for f in "$@"; do
     else
         echo "$f"": false" >> $output_file
         lps2lts "evidence/smeltery2_$f.evidence.lps" "evidence/smeltery2_$f.evidence.lts"
-        ltsgraph "evidence/smeltery2_$f.evidence.lts"
     fi
     
     rm -f "evidence/smeltery2_$f.evidence.lps"
