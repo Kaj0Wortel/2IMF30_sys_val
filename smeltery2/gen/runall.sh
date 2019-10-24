@@ -1,2 +1,2 @@
 #!/bin/bash
-./run2.sh "$(ls -bq '../properties' | cut -d'.' -f 1)"
+./run2.sh "$(ls -q '../properties' | cut -d'.' -f 1)"
