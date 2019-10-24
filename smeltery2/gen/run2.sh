@@ -9,6 +9,8 @@ mkdir "evidence"
     echo "$f"
 done) | parallel --will-cite -j $(nproc) --results "out/log_{}/" --timeout 3600 --progress "./gen2.sh"
 
+sudo chmod -R 777 .
+
 output_file="result.txt"
 rm -f $output_file
 for f in "$@"; do
