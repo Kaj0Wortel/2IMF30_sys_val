@@ -1,6 +1,6 @@
-nu X(FullCarts: List(Nat)=[], CartLocation: Nat -> Nat=cartInit) .
-	forall c1: Nat . val(c1<4) => [cartFull(c1)]X(add(FullCarts, c1), CartLocation) &&
-	forall c2: Nat . val(c2< 4) => [cartEmpty(c1)]X(remove(FullCarts, c2), CartLocation) &&
-	forall r: Nat . val(r<8) => forall c: Nat . val(c<4) => [cartAtRail(c,rail(r))]X(FullCarts, CartLocation[c->r]) &&
-	[pourFurnace(true)](exists c4: Nat . val(c4<4 && CartLocation(c4)==1 && !inList(FullCarts, c4))) && X(FullCarts, CartLocation) &&
-	forall n: Nat . val(n<4) => forall m: Nat . val(m<8) => [!(cartFull(n) || cartEmpty(n) || cartAtRail(n,rail(m)))]X(FullCarts, CartLocation)
+nu X(FullCarts: Nat -> Bool=initBoolFalse, CartLocation: Nat -> Nat=cartInit) .
+	( forall c1: Nat . val(c1<4) => [cartFull(c1)]X(FullCarts[c1->true], CartLocation) ) &&
+	( forall c2: Nat . val(c2<4) => [cartEmpty(c2)]X(FullCarts[c2->false], CartLocation) ) &&
+	( forall r: Nat . val(r<8) => forall c: Nat . val(c<4) => [cartAtRail(c,rail(r))]X(FullCarts, CartLocation[c->r]) ) &&
+	( [pourFurnace(true)](exists c4: Nat . val(c4<4 && CartLocation(c4)==1 && !FullCarts(c4))) && X(FullCarts, CartLocation) ) &&
+	( forall n: Nat . val(n<4) => forall m: Nat . val(m<8) => [!(cartFull(n) || cartEmpty(n) || cartAtRail(n,rail(m)))]X(FullCarts, CartLocation) )
