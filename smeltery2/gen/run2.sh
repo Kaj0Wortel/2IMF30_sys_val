@@ -14,7 +14,7 @@ sudo chmod -R 777 .
 output_file="result.txt"
 rm -f $output_file
 for f in "$@"; do
-    if "out/log_$f/1/$f/stdout"; then
+    if "`out/log_$f/1/$f/stdout`"; then
         echo "$f"": true" >> $output_file
         rm -f "evidence/smeltery2_$f.evidence.lps"
     else
