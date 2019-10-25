@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo chmod -R 777 .
-
 output_file="result.txt"
 rm -f $output_file
 for f in ../properties/*; do
@@ -10,12 +8,11 @@ for f in ../properties/*; do
     file="out/log_""$f""/1/""$f""/stdout"
     if [[ ! -f "$file" ]]; then
         echo "error: $f" >> $output_file
-        rm -f "evidence/smeltery2_$f.evidence.lps"
     else
         result=$(cat "$file")
         if [[ $result == "true" ]]; then
             echo "true : $f" >> $output_file
-            rm -f "evidence/smeltery2_$f.evidence.lps"
+            #rm -f "evidence/smeltery2_$f.evidence.lps"
         else
             echo "false: $f" >> $output_file
             lps2lts "evidence/smeltery2_$f.evidence.lps" "evidence/smeltery2_$f.evidence.lts"
