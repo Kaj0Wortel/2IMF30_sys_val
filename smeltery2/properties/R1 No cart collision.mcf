@@ -8,7 +8,7 @@
         )
 	) &&
 	( forall c: Nat . val(c < 4) => forall other: Nat . val(other < 4 && other != c) => [moveCartBackward(c)]
-        val(allow_prev(rail(curCartLoc(c)))) && (
+        val(allow_prev(rail(curCartLoc(c)))) => (
             val(curCartLoc(other) != id(prev(rail(curCartLoc(c))))) &&
             val(nextCartLoc(other) != id(prev(rail(curCartLoc(c))))) &&
             X(sw, curCartLoc, nextCartLoc[c -> id(prev(rail(curCartLoc(c))))])
