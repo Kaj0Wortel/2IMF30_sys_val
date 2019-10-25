@@ -533,9 +533,9 @@ init
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
 				refineryDown, requestRefineryMaintenance, refineryUp,
-%				cartDown, requestEmergencyCartMaintenance, cartUp,
-%				cartRequestMaintenance, requestCartMaintenance,
-%				furnaceDown, requestFurnaceMaintenance, furnaceUp,
+				cartDown, requestEmergencyCartMaintenance, cartUp,
+				cartRequestMaintenance, requestCartMaintenance,
+				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
 				moveCartForward, moveCartBackward, cartAtRail,
 				switchRail, setTargetTo,
