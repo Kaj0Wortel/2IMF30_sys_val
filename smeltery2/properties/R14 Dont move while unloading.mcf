@@ -1,5 +1,12 @@
-nu X(UnloadingCarts: Nat -> Bool=initBoolFalse) . 
-	( forall c1: Nat . val(c1<4) => [unloadCart(c1, true)]X(UnloadingCarts[c1->true]) ) &&
-	( forall c2: Nat . val(c2<4) => [unloadCart(c2, false)]X(UnloadingCarts[c2->false]) ) &&
-	( forall c3: Nat . val(c3<4) => [moveCartForward(c3) || moveCartBackward(c3)] val(!UnloadingCarts(c3)) && X(UnloadingCarts) ) &&
-	( forall n: Nat . val(n<4) => [!unloadCart(n,true) && !unloadCart(n,false) && !moveCartForward(n) && !moveCartBackward(n)]X(UnloadingCarts) )
+nu X(unloadingCarts: Set(Nat) = {}).
+	( forall c: Nat . val(c < 4) => [unloadCart(c, true)] X(unloadingCarts + {c}) ) &&
+	( forall c: Nat . val(c < 4) => [unloadCart(c, false)] X(unloadingCarts - {c}) ) &&
+	( forall c: Nat . val(c < 4) => [moveCartForward(c) || moveCartBackward(c)] val(!(c in unloadingCarts)) && X(unloadingCarts) ) &&
+	( forall c: Nat . val(c < 4) => [!unloadCart(c, true) && !unloadCart(c, false) && !moveCartForward(c) && !moveCartBackward(c)] X(unloadingCarts) )
+
+
+%nu X(unloadingCarts: List(Nat) = []) . 
+%	( forall c: Nat . val(c < 4) => [unloadCart(c, true)] X(add(unloadingCarts, c)) ) &&
+%	( forall c: Nat . val(c < 4) => [unloadCart(c, false)] X(remove(unloadingCarts, c)) ) &&
+%	( forall c: Nat . val(c < 4) => [moveCartForward(c) || moveCartBackward(c)] val(!inList(unloadingCarts, c)) && X(unloadingCarts) ) &&
+%	( forall c: Nat . val(c < 4) => [!unloadCart(c, true) && !unloadCart(c, false) && !moveCartForward(c) && !moveCartBackward(c)] X(unloadingCarts) )

@@ -1,5 +1,0 @@
-nu X(unloadingCarts: Set(Nat)={}).
-	forall n: Nat . [unloadCart(n, true)]X(unloadingCarts + {n}) &&
-	forall m: Nat . [unloadCart(m, false)]X(unloadingCarts - {m}) &&
-	forall l: Nat . [moveCartForward(l) + moveCartBackward(l)] val(!(l in unloadingCarts)) && X(unloadingCarts) &&
-	forall k: Nat . [!unloadCart(k, true) + !unloadCart(k, false) + !moveCartForward(k) + !moveCartBackward(k)]X(unloadingCarts)

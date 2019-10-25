@@ -1,3 +1,1 @@
-[true* . requestIron(0)] <(!requestDone(0))* . requestDone(0)> true &&
-[true* . requestIron(1)] <(!requestDone(1))* . requestDone(1)> true &&
-[true* . requestIron(2)] <(!requestDone(2))* . requestDone(2)> true 
+forall r: Nat . val(r < 3) => [true* . requestIron(r)] <(!requestDone(r))* . requestDone(r)> true

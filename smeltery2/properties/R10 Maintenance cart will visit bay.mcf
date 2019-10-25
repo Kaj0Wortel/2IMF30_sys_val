@@ -1,0 +1,1 @@
+forall c: Nat . val(c < 4) => [cartRequestMaintenance(c) . (!cartUp(c))*] <true* . cartUp(c)> true
