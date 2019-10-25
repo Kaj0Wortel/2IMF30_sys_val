@@ -477,7 +477,7 @@ proc
 							<> cartUp(c) . CartMover(reset_target(c, set_allow_move(c, true, set_req_main(c, false, set_rec_main(c, false, cs)))), reserved)  ) +
 				% Cart is broken.
 				(!is_down(c, cs))
-					-> ( ((!get_req_main(c, cs) && forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs) && has_target(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
+					-> ( ((!get_req_main(c, cs) && !is_at_furnace(get_rail(c, cs)) && !is_at_refinery(get_rail(c, cs)) && forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs) && has_target(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
 					<> (!get_rec_main(c, cs))
 						-> (requestEmergencyCartMaintenance(c) . CartMover(set_rec_main(c, true, cs), reserved))
 						<> (cartUp(c) . CartMover(set_allow_move(c, true, set_down(c, false, set_rec_main(c, false, set_req_main(c, false,
@@ -524,9 +524,9 @@ proc
 				-> switchRail(Int2Nat(get_section(get_target(c, cs)) - 1)) . CartMover(set_switch(switch(Int2Nat(get_section(get_target(c, cs)) - 1)), cs), reserved)
 				<> (allow_prev(get_rail(c, cs)) && prev(get_rail(c, cs)) == r)
 					% Move backward.
-					-> moveCartBackward(id(r)) . CartMover(set_next(c, prev(get_rail(c, cs)), cs), reserved)
+					-> moveCartBackward(c) . CartMover(set_next(c, prev(get_rail(c, cs)), cs), reserved)
 					% Move forward.
-					<> moveCartForward(id(r)) . CartMover(set_next(c, next(get_rail(c, cs), swtch(cs)), cs), reserved);
+					<> moveCartForward(c) . CartMover(set_next(c, next(get_rail(c, cs), swtch(cs)), cs), reserved);
 init
 %	hide ({ aCart, requestDone, cartIsFull, setTargetTo, requestRefineryMaintenance, requestEmergencyCartMaintenance, requestCartMaintenance, requestFurnaceMaintenance },
 	hide({ tmp },
