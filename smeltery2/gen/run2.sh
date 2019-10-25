@@ -9,25 +9,4 @@ mkdir "evidence"
     echo "$f"
 done) | parallel --will-cite -j $(nproc) --results "out/log_{}/" --timeout 3600 --progress "./gen2.sh"
 
-sudo chmod -R 777 .
-
-output_file="result.txt"
-rm -f $output_file
-for f in "$@"; do
-    file="out/log_$f/1/$f/stdout"
-    if [[ ! -f "$file" ]]; then
-        echo "$f"": error" >> $output_file
-        rm -f "evidence/smeltery2_$f.evidence.lps"
-    else
-        result=$(cat "$file")
-        if [[ $result == "true" ]]; then
-            echo "$f"": true" >> $output_file
-            rm -f "evidence/smeltery2_$f.evidence.lps"
-        else
-            echo "$f"": false" >> $output_file
-            lps2lts "evidence/smeltery2_$f.evidence.lps" "evidence/smeltery2_$f.evidence.lts"
-        fi
-    fi
-done
-rm -f "smeltery2.lps"
-less result.txt
+sudo ./process_results.sh

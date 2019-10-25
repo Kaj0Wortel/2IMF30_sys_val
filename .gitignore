@@ -6,3 +6,4 @@ smelter2/artefacts/*
 !smeltery2/gen/run.sh
 !smeltery2/gen/run2.sh
 !smeltery2/gen/runall.sh
+!smeltery2/gen/process_results.sh
