@@ -470,14 +470,14 @@ proc
 				MoveCartToTarget(cs, reserved, c) +
 				% Cart requires maintenance.
 				(forall cID: Nat . (cID < 4) => !is_down(cID, cs))
-					-> (  (!get_req_main(c, cs) && !has_target(c, cs))
-						-> (cartRequestMaintenance(c) . CartMover(set_req_main(c, true, cs), reserved))
+					-> (  (!get_req_main(c, cs))
+						-> ((!has_target(c, cs)) -> cartRequestMaintenance(c) . CartMover(set_req_main(c, true, cs), reserved))
 						<> (!get_rec_main(c, cs))
 							-> ( (is_at_repair_bay(get_rail(c, cs)) && has_target(c, cs)) -> (requestCartMaintenance(c) . CartMover(set_allow_move(c, false, set_rec_main(c, true, cs)), reserved)) )
 							<> cartUp(c) . CartMover(reset_target(c, set_allow_move(c, true, set_req_main(c, false, set_rec_main(c, false, cs)))), reserved)  ) +
 				% Cart is broken.
 				(!is_down(c, cs))
-					-> ( ((forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs) && has_target(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
+					-> ( ((!get_req_main(c, cs) && forall cID: Nat . cID < 4 => !is_down(cID, cs)) && !get_rec_main(c, cs) && has_target(c, cs)) -> cartDown(c) . CartMover(set_allow_move(c, false, set_down(c, true, cs)), reserved) )
 					<> (!get_rec_main(c, cs))
 						-> (requestEmergencyCartMaintenance(c) . CartMover(set_rec_main(c, true, cs), reserved))
 						<> (cartUp(c) . CartMover(set_allow_move(c, true, set_down(c, false, set_rec_main(c, false, set_req_main(c, false,
@@ -500,7 +500,7 @@ proc
 							-> ( sum bay: Rail . (bay <= rail(8) && is_at_repair_bay(bay) && free_route(get_cart(c, cs), bay, cs, reserved))
 								-> setTargetTo(c, bay) . CartMover(set_target(c, bay, cs), add(reserved, get_route(get_rail(c, cs), bay))) )
 							% Set refinery as target.
-							<> (r + 1 == c && allow_send_cart(cs, c, r) && free_closest_route(get_cart(c, cs), r, cs, reserved)) ->
+							<> (r + 1 == c && allow_send_cart(cs, c, r) && free_route(get_cart(c, cs), r, cs, reserved)) ->
 								setTargetTo(c, get_refinery_rail(r)) . CartMover(set_target(c, get_refinery_rail(r), cs), add(reserved, get_route_for(get_cart(c, cs), r))) +
 					% End request.
 					(get_target(c, cs) == get_refinery_rail(r) && get_rail(c, cs) == get_refinery_rail(r) && !is_empty(c, cs) && get_req_iron(r, cs))
