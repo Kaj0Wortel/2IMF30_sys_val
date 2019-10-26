@@ -8,7 +8,7 @@
 %		pourFurnace(true)> true
 
 
-forall r: Rail . val(id(r) <= 8) =>
+exists r: Rail . val(id(r) <= 8) &&
 exists c: Nat . val(c < 4) &&
 	[(true*) . cartFull(c) . !cartEmpty(c)* . cartAtRail(c, get_furnace_rail) . (!cartEmpty(c) && !cartAtRail(c, r))*]
 	<(!cartEmpty(c) && !cartAtRail(c, r))* . pourFurnace(true)> false
