@@ -528,7 +528,7 @@ proc
 					% Move forward.
 					<> moveCartForward(c) . CartMover(set_next(c, next(get_rail(c, cs), swtch(cs)), cs), reserved);
 init
-%	hide ({ aCart, requestDone, cartIsFull, setTargetTo, requestRefineryMaintenance, requestEmergencyCartMaintenance, requestCartMaintenance, requestFurnaceMaintenance },
+%	hide ({ aCart, requestDone, cartIsFull, setTargetTo, },
 	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
@@ -561,6 +561,7 @@ map cartInit: Nat -> Nat;
 	initBoolFalse: Nat -> Bool;
 	initBool: Bool -> (Nat -> Bool);
 	initIsAtRefinery: Nat -> Bool;
+	initIsAtBay: Nat -> Bool;
 
 var n: Nat;
 	b: Bool;
@@ -581,6 +582,10 @@ eqn
 	initIsAtRefinery(1) = true;
 	initIsAtRefinery(2) = true;
 	initIsAtRefinery(3) = true;
+	initIsAtBay(0) = true;
+	initIsAtBay(1) = false;
+	initIsAtBay(2) = false;
+	initIsAtBay(3) = false;
 
 map
 	isEmpty: List(Nat) -> Bool;
