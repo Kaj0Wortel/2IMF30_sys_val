@@ -1,11 +1,18 @@
-forall c: Nat . val(c < 4) =>
+%forall c: Nat . val(c < 4) =>
+%forall r: Rail . val(id(r) <= 8) =>
+%	[((!cartFull(c) && !cartEmpty(c))* . cartFull(c) . (!cartFull(c) && !cartEmpty(c))* . cartEmpty(c))* .
+%		(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, get_furnace_rail))*]
+%	<(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, get_furnace_rail))* .
+%		cartAtRail(c, get_furnace_rail) .
+%		(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, r))* .
+%		pourFurnace(true)> true
+
+
 forall r: Rail . val(id(r) <= 8) =>
-	[((!cartFull(c) && !cartEmpty(c))* . cartFull(c) . (!cartFull(c) && !cartEmpty(c))* . cartEmpty(c))* .
-		(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, get_furnace_rail))*]
-	<(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, get_furnace_rail))* .
-		cartAtRail(c, get_furnace_rail) .
-		(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, r))* .
-		pourFurnace(true)> true
+exists c: Nat . val(c < 4) &&
+	[(true*) . cartFull(c) . !cartEmpty(c)* . cartAtRail(c, get_furnace_rail) . (!cartEmpty(c) && !cartAtRail(c, r))*]
+	<(!cartEmpty(c) && !cartAtRail(c, r))* . pourFurnace(true)> false
+
 
 %nu X(fullCarts: Nat -> Bool = initBool(false), isAtFurnace: Nat -> Bool = initBool(false)) .
 %	( forall c: Nat . val(c < 4) => [cartFull(c)] ( val(isAtFurnace(c)) && X(fullCarts[c -> true], isAtFurnace) ) ) &&
