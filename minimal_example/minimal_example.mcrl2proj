@@ -1,0 +1,6 @@
+<root>
+ <spec>minimal_example_spec.mcrl2</spec>
+ <properties>
+  <property>test</property>
+ </properties>
+</root>

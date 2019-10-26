@@ -1,0 +1,7 @@
+act
+	a, loop, c;
+proc
+	X = a . Y;
+	Y = loop . Y + c . X;
+
+init X;

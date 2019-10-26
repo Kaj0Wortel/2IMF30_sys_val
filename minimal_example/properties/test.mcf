@@ -1,0 +1,4 @@
+mu X(state: Nat = 0) .
+	( [a] val(state == 0) && X(1) ) &&
+	( [c] val(state == 1) && X(0) ) &&
+	( [!a && !c] X(state) )
