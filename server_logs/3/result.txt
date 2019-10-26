@@ -1,0 +1,18 @@
+TYPE: 2/4 [1|0|0|1]
+false: R1 No cart collision
+true : R2 Request maintain cart
+true : R3 If a refinery goes down eventually it will request maintenance
+true : R4 Leave if done
+false: R5 if a request for iron is made it eventually will be fulfilled
+true : R6 Filled cart will deliver
+true : R7 Open geq filled
+true : R8 Cart not filled if maintenance
+false: R9 Empty for maintenance
+true : R10 Maintenance cart will visit bay
+true : R11 Repair if possible
+false: R12 Begin unloading
+false: R13 Dont move while loading
+false: R14 Dont move while unloading
+false: R15 Dont pour if no empty cart
+false: R16 No cart on active switch
+true : R17 no deadlock
