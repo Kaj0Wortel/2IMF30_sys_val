@@ -1,7 +1,6 @@
-
 forall c: Nat . val(c < 4) =>
 forall r: Rail . val(id(r) <= 8) =>
-	[true* . (cartFull(c) . (!cartFull(c) && !cartEmpty(c))* . cartEmpty(c) . (!cartFull(c) && !cartEmpty(c))*)* .
+	[((!cartFull(c) && !cartEmpty(c))* . cartFull(c) . (!cartFull(c) && !cartEmpty(c))* . cartEmpty(c))* .
 		(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, get_furnace_rail))*]
 	<(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, get_furnace_rail))* .
 		cartAtRail(c, get_furnace_rail) .
