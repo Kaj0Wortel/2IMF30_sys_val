@@ -1,6 +1,6 @@
 nu X(fullCarts: Nat -> Bool = initBool(false), isAtFurnace: Nat -> Bool = initBool(false)) .
-	( forall c: Nat . val(c < 4) => [cartFull(c)] val(isAtFurnace(c)) && X(fullCarts[c -> true], isAtFurnace) ) &&
-	( forall c: Nat . val(c < 4) => [cartEmpty(c)] X(fullCarts[c -> false], isAtFurnace) ) &&
-	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] X(fullCarts, isAtFurnace[c -> (r == 1)]) ) &&
-	[pourFurnace(true)] (exists c: Nat . val(c < 4 && isAtFurnace(c) && !fullCarts(c))) && X(fullCarts, isAtFurnace) &&
-	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, rail(r))] X(fullCarts, isAtFurnace) )
+	( forall c: Nat . val(c < 4) => [cartFull(c)] ( val(isAtFurnace(c)) && X(fullCarts[c -> true], isAtFurnace) ) ) &&
+	( forall c: Nat . val(c < 4) => [cartEmpty(c)] ( X(fullCarts[c -> false], isAtFurnace) ) ) &&
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] ( X(fullCarts, isAtFurnace[c -> (r == 1)]) ) ) &&
+	[pourFurnace(true)] ( (exists c: Nat . val(c < 4 && isAtFurnace(c) && !fullCarts(c))) && X(fullCarts, isAtFurnace) ) &&
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, rail(r))] ( X(fullCarts, isAtFurnace) ) )

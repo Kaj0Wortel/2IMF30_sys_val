@@ -1,6 +1,6 @@
 nu X(reqMain: Nat -> Bool = initBool(false), cartIsEmpty: Nat -> Bool = initBool(true)) .
-	( forall c: Nat . val(c < 4) => [cartFull(c)] val(cartIsEmpty(c)) && X(reqMain, cartIsEmpty[c -> false]) ) &&
-	( forall c: Nat . val(c < 4) => [cartEmpty(c)] val(!cartIsEmpty(c)) && X(reqMain, cartIsEmpty[c -> true]) ) &&
-	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] val(!reqMain(c)) && X(reqMain[c -> true], cartIsEmpty) ) &&
-	( forall c: Nat . val(c < 4) => [requestCartMaintenance(c)] val(cartIsEmpty(c) && reqMain(c)) && X(reqMain[c -> false], cartIsEmpty) ) &&
-	( forall c: Nat . val(c < 4) => [!cartFull(c) && !cartEmpty(c) && !cartRequestMaintenance(c) && !cartRequestMaintenance(c)] X(reqMain, cartIsEmpty) )
+	( forall c: Nat . val(c < 4) => [cartFull(c)] ( val(cartIsEmpty(c)) && X(reqMain, cartIsEmpty[c -> false]) ) ) &&
+	( forall c: Nat . val(c < 4) => [cartEmpty(c)] ( val(!cartIsEmpty(c)) && X(reqMain, cartIsEmpty[c -> true]) ) ) &&
+	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] ( val(!reqMain(c)) && X(reqMain[c -> true], cartIsEmpty) ) ) &&
+	( forall c: Nat . val(c < 4) => [requestCartMaintenance(c)] ( val(cartIsEmpty(c) && reqMain(c)) && X(reqMain[c -> false], cartIsEmpty) ) ) &&
+	( forall c: Nat . val(c < 4) => [!cartFull(c) && !cartEmpty(c) && !cartRequestMaintenance(c) && !cartRequestMaintenance(c)] ( X(reqMain, cartIsEmpty) ) )

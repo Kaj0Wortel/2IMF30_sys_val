@@ -1,8 +1,8 @@
 nu X(unloadingCarts: Set(Nat) = {}).
-	( forall c: Nat . val(c < 4) => [unloadCart(c, true)] X(unloadingCarts + {c}) ) &&
-	( forall c: Nat . val(c < 4) => [unloadCart(c, false)] X(unloadingCarts - {c}) ) &&
-	( forall c: Nat . val(c < 4) => [moveCartForward(c) || moveCartBackward(c)] val(!(c in unloadingCarts)) && X(unloadingCarts) ) &&
-	( forall c: Nat . val(c < 4) => [!unloadCart(c, true) && !unloadCart(c, false) && !moveCartForward(c) && !moveCartBackward(c)] X(unloadingCarts) )
+	( forall c: Nat . val(c < 4) => [unloadCart(c, true)] ( X(unloadingCarts + {c}) ) ) &&
+	( forall c: Nat . val(c < 4) => [unloadCart(c, false)] ( X(unloadingCarts - {c}) ) ) &&
+	( forall c: Nat . val(c < 4) => [moveCartForward(c) || moveCartBackward(c)] ( val(!(c in unloadingCarts)) && X(unloadingCarts) ) ) &&
+	( forall c: Nat . val(c < 4) => [!unloadCart(c, true) && !unloadCart(c, false) && !moveCartForward(c) && !moveCartBackward(c)] ( X(unloadingCarts) ) )
 
 
 %nu X(unloadingCarts: List(Nat) = []) . 

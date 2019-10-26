@@ -1,4 +1,4 @@
 nu X(cartOnSwitch: Nat -> Bool = initBool(false)) .
-	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] X(cartOnSwitch[c -> (r == 2)]) ) &&
-	( forall s: Nat . val(s < 3) => [switchRail(s)] forall c: Nat . val(c < 4) => val(!cartOnSwitch(c)) && X(cartOnSwitch) ) &&
-	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => forall s: Nat . val(s < 3) => [!cartAtRail(c, rail(r)) && !switchRail(s)] X(cartOnSwitch) )
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] ( X(cartOnSwitch[c -> (r == 2)]) ) ) &&
+	( forall s: Nat . val(s < 3) => [switchRail(s)] ( forall c: Nat . val(c < 4) => val(!cartOnSwitch(c)) && X(cartOnSwitch) ) ) &&
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => forall s: Nat . val(s < 3) => [!cartAtRail(c, rail(r)) && !switchRail(s)] ( X(cartOnSwitch) ) )

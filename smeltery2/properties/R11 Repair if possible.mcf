@@ -1,11 +1,11 @@
 nu X(reqMain: Nat -> Bool = initBool(false), isAtBay: Nat -> Bool = initBool(false)) .
-	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] X(reqMain[c -> true], isAtBay) ) &&
-	( forall c: Nat . val(c < 4) => [cartDown(c)] X(reqMain[c -> false], isAtBay) ) &&
-	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [cartAtRail(c, r)] ((val(is_at_repair_bay(r)) && X(reqMain, isAtBay[c -> true])) || (!val(is_at_repair_bay(r)) && X(reqMain, isAtBay[c -> false]))) ) &&
-	( forall c: Nat . val(c < 4) => [cartUp(c)] X(reqMain[c -> false], isAtBay) ) &&
-	( forall c: Nat . val(c < 4) => [requestCartMaintenance(c)] val(isAtBay(c) && reqMain(c)) ) &&
+	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] ( X(reqMain[c -> true], isAtBay) ) ) &&
+	( forall c: Nat . val(c < 4) => [cartDown(c)] ( X(reqMain[c -> false], isAtBay) ) ) &&
+	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [cartAtRail(c, r)] ( X(reqMain, isAtBay[c -> is_at_repair_bay(r)]) ) ) &&
+	( forall c: Nat . val(c < 4) => [cartUp(c)] ( X(reqMain[c -> false], isAtBay) ) ) &&
+	( forall c: Nat . val(c < 4) => [requestCartMaintenance(c)] ( val(isAtBay(c) && reqMain(c)) && X(reqMain[c -> false], isAtBay) ) ) &&
 	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) =>
-		[!cartRequestMaintenance(c) && !cartDown(c) && !cartAtRail(c, r) && !cartUp(c) && !requestCartMaintenance(c)] X(reqMain, isAtBay) )
+		( [!cartRequestMaintenance(c) && !cartDown(c) && !cartAtRail(c, r) && !cartUp(c) && !requestCartMaintenance(c)] X(reqMain, isAtBay) ) )
 
 
 %nu X(CartLocation: Nat -> Nat = initCart, CartMaintenanceRequests: List(Nat) = [], MaintenanceBays: List(Nat) = maintInit) .

@@ -1,5 +1,5 @@
-nu X(state: Nat = 0) . (
+nu X(state: Nat = 0) .
+	false || (
 	( [a] (val(state == 0) && X(1)) ) &&
 	( [c] (val(state == 1) && X(0)) ) &&
-	( [!a && !c] X(state) )
-)
+	( [!a && !c] X(state) ))

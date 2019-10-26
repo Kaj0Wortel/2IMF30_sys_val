@@ -1,8 +1,8 @@
 nu X(CartLocation: Nat -> Nat = cartInit, OpenRequests: List(Nat) = [], RefineryAt: Nat -> Nat = refineryInit) . 
-	( forall c: Nat . val(c < 4) => forall r: Nat . val(r < 3) => [cartAtRail(c, rail(r))] X(CartLocation[c -> r], OpenRequests, RefineryAt) ) &&
-	( forall r: Nat . val(r < 3) => [requestIron(r)] X(CartLocation, add(OpenRequests, r), RefineryAt) ) &&
-	( forall r: Nat . val(r < 3) => [requestDone(r)] X(CartLocation, remove(OpenRequests, r), RefineryAt) ) &&
-	( forall c: Nat . val(c < 4) => [unloadCart(c, true)] exists r: Nat . val(r < 3 && CartLocation(c) == RefineryAt(r)
-		&& inList(OpenRequests, RefineryAt(r))) && X(CartLocation, OpenRequests, RefineryAt) ) && 
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r < 3) => [cartAtRail(c, rail(r))] ( X(CartLocation[c -> r], OpenRequests, RefineryAt) ) ) &&
+	( forall r: Nat . val(r < 3) => [requestIron(r)]( X(CartLocation, add(OpenRequests, r), RefineryAt) ) ) &&
+	( forall r: Nat . val(r < 3) => [requestDone(r)] ( X(CartLocation, remove(OpenRequests, r), RefineryAt) ) ) &&
+	( forall c: Nat . val(c < 4) => [unloadCart(c, true)] ( exists r: Nat . val(r < 3 && CartLocation(c) == RefineryAt(r)
+		&& inList(OpenRequests, RefineryAt(r))) && X(CartLocation, OpenRequests, RefineryAt) ) ) && 
 	( forall n: Nat . (val(n < 4) => forall ra: Nat . val(ra < 8) => forall re: Nat . val(re < 3) => forall c: Nat . val(c < 4) =>
-		[!cartAtRail(n, rail(ra)) && !requestIron(re) && !requestDone(re) && !unloadCart(c, true)] X(CartLocation, OpenRequests, RefineryAt)) )
+		[!cartAtRail(n, rail(ra)) && !requestIron(re) && !requestDone(re) && !unloadCart(c, true)] ( X(CartLocation, OpenRequests, RefineryAt)) ) )
