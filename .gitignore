@@ -1,9 +1,16 @@
 #Git ignore
 smeltery2/gen/*
 smelter2/artefacts/*
-!smeltery2/gen/gen2.sh
+
 !smeltery2/gen/gen.sh
 !smeltery2/gen/run.sh
+
+!smeltery2/gen/gen2.sh
 !smeltery2/gen/run2.sh
 !smeltery2/gen/runall.sh
+
+!smeltery2/gen/gen2_bf.sh
+!smeltery2/gen/run2_bf.sh
+!smeltery2/gen/runall_bf.sh
+
 !smeltery2/gen/process_results.sh

@@ -9,7 +9,7 @@
   <property>R6 Filled cart will deliver</property>
   <property>R7 Open geq filled</property>
   <property>R8 Cart not filled if maintenance</property>
-  <property>R9 Empty for maintenance</property>
+  <property>R9 Empty for maintenance2</property>
   <property>R10 Maintenance cart will visit bay</property>
   <property>R11 Repair if possible</property>
   <property>R12 Begin unloading</property>
