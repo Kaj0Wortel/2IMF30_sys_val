@@ -3,4 +3,4 @@ nu X(CartLocation: Nat -> Nat=cartInit, CartMaintenance: Nat -> Bool= initBoolFa
 	( forall c2: Nat . val(c2<4) => [cartRequestMaintenance(c2)]X(CartLocation, CartMaintenance[c2->true]) ) &&
 	( forall c3: Nat . val(c3<4) => [cartUp(c3)]X(CartLocation, CartMaintenance[c3->false]) ) &&
 	( [pourFurnace(true)] !(exists c4: Nat . val(c4<4 && CartLocation(c4)==1 && CartMaintenance(c4))) && X(CartLocation, CartMaintenance) ) &&
-	( forall c5: Nat . val(c5<4) => forall r2: Nat . val(r2<=8) => [!(cartAtRail(c5, rail(r2))||cartRequestMaintenance(c5)||cartUp(c5)||pourFurnace(true))]X(CartLocation, CartMaintenance) )
+	( forall c5: Nat . val(c5<4) => forall r2: Nat . val(r2<=8) => [!cartAtRail(c5, rail(r2))&&!cartRequestMaintenance(c5)&&!cartUp(c5)&&!pourFurnace(true)]X(CartLocation, CartMaintenance) )
