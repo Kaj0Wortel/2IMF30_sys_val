@@ -1,6 +1,6 @@
 nu X(pouringFurnace: Bool = false, cartOnFurnace: Nat -> Bool = initBool(false)) .
-	( forall pour: Bool . [pourFurnace(pour)] (exists c: Nat . val(c < 4 && cartOnFurnace(c))) && X(pour, cartOnFurnace) ) &&
-	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] val(r != 1 || !pouringFurnace) &&
-		X(pouringFurnace, cartOnFurnace[c -> (r == 1)]) ) &&
+	( forall pour: Bool . [pourFurnace(pour)] ((exists c: Nat . val(c < 4 && cartOnFurnace(c))) && X(pour, cartOnFurnace) )) &&
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] (val(r != 1 || !pouringFurnace) &&
+		X(pouringFurnace, cartOnFurnace[c -> (r == 1)]) ))	&&
 	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => forall pour: Bool . [!pourFurnace(pour) && !cartAtRail(c, rail(r))]
 		X(pouringFurnace, cartOnFurnace) )
