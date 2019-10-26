@@ -528,8 +528,8 @@ proc
 					% Move forward.
 					<> moveCartForward(c) . CartMover(set_next(c, next(get_rail(c, cs), swtch(cs)), cs), reserved);
 init
-%	hide ({ aCart, requestDone, cartIsFull, setTargetTo, },
-	hide({ tmp },
+	hide ({ aCart, requestDone, cartIsFull, setTargetTo },
+%	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
 				refineryDown, requestRefineryMaintenance, refineryUp,
