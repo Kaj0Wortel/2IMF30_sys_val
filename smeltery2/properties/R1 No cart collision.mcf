@@ -1,7 +1,7 @@
 nu X(cartLoc: Nat -> Nat = cartInit, sw: Switch = init_switch) .
-	( forall s: Nat . val(s < 3) => [switchRail(s)] X(cartLoc, switch(s)) ) &&
-	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] (!exists other: Nat . val(other < 4 && c != other) =>
-		val(cartLoc(c) == cartLoc(other))) && X(cartLoc[c -> r], sw) ) &&
+	( forall s: Nat . val(s < 3) => [switchRail(s)] ( X(cartLoc, switch(s)) ) ) &&
+	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] ( (!exists other: Nat . val(other < 4 && c != other) =>
+		val(cartLoc(c) == cartLoc(other))) && X(cartLoc[c -> r], sw) ) ) &&
 	( forall s: Nat . val(s < 3) => forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [!switchRail(s) && !cartAtRail(c, r)] X(cartLoc, sw) )
 	
 

@@ -4,4 +4,7 @@ proc
 	X = a . Y;
 	Y = loop . Y + c . X;
 
-init X;
+init 
+	allow ({a, c},
+		X
+	);
