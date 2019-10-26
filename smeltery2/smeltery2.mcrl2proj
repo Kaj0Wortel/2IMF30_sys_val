@@ -10,13 +10,14 @@
   <property>R7 Open geq filled</property>
   <property>R8 Cart not filled if maintenance</property>
   <property>R9 Empty for maintenance</property>
+  <property>R10 Maintenance cart will visit bay</property>
   <property>R11 Repair if possible</property>
   <property>R12 Begin unloading</property>
   <property>R13 Dont move while loading</property>
   <property>R14 Dont move while unloading</property>
-  <property>R15 Dont pour is no empty cart</property>
+  <property>R15 Dont pour if no empty cart</property>
   <property>R16 No cart on active switch</property>
-  <property>no deadlock</property>
-  <property>No moving while unloading</property>
+  <property>R17 no deadlock</property>
+  <property>R18 No offroad</property>
  </properties>
 </root>

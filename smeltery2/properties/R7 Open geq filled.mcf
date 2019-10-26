@@ -1,7 +1,7 @@
 nu X(openRequests: Int = 0, filledCarts: Int = 0) . 
-	(forall r: Nat . val(r < 3) => [requestIron(r)] X(openRequests + 1, filledCarts)) &&
-	(forall r: Nat . val(r < 3) => [requestDone(r)] X(openRequests - 1, filledCarts)) &&
-	(forall c: Nat . val(c < 4) => [cartFull(c)]  X(openRequests, filledCarts + 1)) &&
-	(forall c: Nat . val(c < 4) => [cartEmpty(c)] X(openRequests, filledCarts - 1)) &&
-	([pourFurnace(true)] val(openRequests >= filledCarts) && X(openRequests, filledCarts)) &&
-	(forall r: Nat . val(r < 3) => forall c: Nat . val(c < 4) => [!(requestIron(r) || requestDone(r) || cartFull(c) || cartEmpty(c) || pourFurnace(true))] X(openRequests, filledCarts))
+	( forall r: Nat . val(r < 3) => [requestIron(r)] X(openRequests + 1, filledCarts) ) &&
+	( forall r: Nat . val(r < 3) => [requestDone(r)] X(openRequests - 1, filledCarts) ) &&
+	( forall c: Nat . val(c < 4) => [cartFull(c)]  X(openRequests, filledCarts + 1) ) &&
+	( forall c: Nat . val(c < 4) => [cartEmpty(c)] X(openRequests, filledCarts - 1) ) &&
+	( [pourFurnace(true)] val(openRequests >= filledCarts) && X(openRequests, filledCarts) ) &&
+	( forall r: Nat . val(r < 3) => forall c: Nat . val(c < 4) => [!requestIron(r) && !requestDone(r) && !cartFull(c) && !cartEmpty(c) && !pourFurnace(true)] X(openRequests, filledCarts) )

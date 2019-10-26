@@ -1,1 +1,0 @@
-forall c1: Nat . val(c1<4) => forall r1: Nat . val(r1<=8) => [true* . cartRequestMaintenance(c1) . !cartAtRail(c1,rail(r1))] exists r2: Nat . val(r2<=8 && (r2==0 || r2==4 || r2==6 || r2==8)) && <!cartAtRail(c1,rail(r2)) . cartAtRail(c1,rail(r2))> true
