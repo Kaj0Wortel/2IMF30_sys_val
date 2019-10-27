@@ -1,9 +1,8 @@
 exists noNxt: Rail . val(id(noNxt) <= 8 && noNxt in noNext) &&
 exists noPrv: Rail . val(id(noPrv) <= 8 && noPrv in noPrev) &&
 exists c: Nat . val(c < 4) &&
-	[true*]
-		([cartAtRail(c, noNxt) . (!cartAtRail(c, noNxt))*] <(cartAtRail(c, noNxt))* . moveCartForward(c)> false) ||
-		([cartAtRail(c, noPrv) . (!cartAtRail(c, noPrv))*] <(cartAtRail(c, noPrv))* . moveCartBackward(c)> false)
+		([true* . cartAtRail(c, noNxt) . (!moveCartBackward(c))*] <(!moveCartBackward(c))* . moveCartForward(c)> false) &&
+		([true* . cartAtRail(c, noPrv) . (!moveCartForward(c))*] <(!moveCartForward(c))* . moveCartBackward(c)> false)
 
 %nu X(cartLoc: Nat -> Nat = cartInit, sw: Switch = init_switch) .
 %	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] ( X(cartLoc[c -> r], sw) ) ) &&
