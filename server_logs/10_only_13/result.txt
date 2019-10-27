@@ -1,0 +1,18 @@
+error: R1 No cart collision
+error: R10 Maintenance cart will visit bay
+error: R11 Repair if possible
+error: R12 Begin unloading
+false: R13 Dont move while loading
+error: R14 Dont move while unloading
+error: R15 Dont pour if no empty cart
+error: R16 No cart on active switch
+error: R17 no deadlock
+error: R18 No offroad
+error: R2 Request maintain cart
+error: R3 If a refinery goes down eventually it will request maintenance
+error: R4 Leave if done
+error: R5 if a request for iron is made it eventually will be fulfilled
+error: R6 Filled cart will deliver
+error: R7 Open geq filled
+error: R8 Cart not filled if maintenance
+error: R9 Empty for maintenance2
