@@ -1,3 +1,4 @@
+TYPE: 0/4 0000 DFS
 false: R1 No cart collision
 true : R10 Maintenance cart will visit bay
 true : R11 Repair if possible
