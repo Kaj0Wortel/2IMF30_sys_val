@@ -1,0 +1,17 @@
+TYPE 3/4 1011 DFS
+true : R1 No cart collision
+true : R2 Request maintain cart
+true : R3 If a refinery goes down eventually it will request maintenance
+true : R4 Leave if done
+false: R5 if a request for iron is made it eventually will be fulfilled
+true : R6 Filled cart will deliver
+true : R8 Cart not filled if maintenance
+false: R9 Empty for maintenance2
+true : R10 Maintenance cart will visit bay
+false: R11 Repair if possible
+false: R12 Begin unloading
+timeO: R13 Dont move while loading
+true : R14 Dont move while unloading
+true : R15 Dont pour if no empty cart
+false: R17 no deadlock
+true : R18 No offroad

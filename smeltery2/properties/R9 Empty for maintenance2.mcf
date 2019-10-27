@@ -5,10 +5,11 @@
 %	( forall c: Nat . val(c < 4) => [requestCartMaintenance(c)] ( val(cartIsEmpty(c) && reqMain(c)) && X(reqMain[c -> false], cartIsEmpty) ) ) &&
 %	( forall c: Nat . val(c < 4) => [!cartFull(c) && !cartEmpty(c) && !cartRequestMaintenance(c) && !cartRequestMaintenance(c)] ( X(reqMain, cartIsEmpty) ) )
 
-forall c: Nat . val(c < 4) => [true*]
-	[(cartFull(c) . (!cartFull(c) && !cartEmpty(c) && !cartRequestMaintenance(c) && !requestCartMaintenance(c))* . cartEmpty(c))*]
-	[(!cartFull(c) && !cartEmpty(c) && !cartRequestMaintenance(c) && !requestCartMaintenance(c))*]
-	[cartRequestMaintenance(c)]
-	[(!cartFull(c) && !cartEmpty(c) && !cartRequestMaintenance(c) && !requestCartMaintenance(c))*]
-	<(!cartFull(c) && !cartEmpty(c) && !cartRequestMaintenance(c) && !requestCartMaintenance(c))*>
-	<requestCartMaintenance(c)> true
+forall c: Nat . val(c < 4) => (
+		[((!cartFull(c))* . cartFull(c) . (!cartEmpty(c))* . cartEmpty(c))*]
+		[(!cartFull(c) && !cartEmpty(c))* . cartRequestMaintenance(c) . (!cartFull(c) && !cartEmpty(c) && !requestCartMaintenance(c))*]
+		<(!cartFull(c) && !cartEmpty(c) && !requestCartMaintenance(c))*>
+		<requestCartMaintenance(c)> true
+	) && (
+		[true* . cartFull(c) . (!cartEmpty(c))* . cartRequestMaintenance(c) . (!requestCartMaintenance(c) && !cartEmpty(c))*]
+		<
