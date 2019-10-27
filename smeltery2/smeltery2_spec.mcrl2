@@ -562,6 +562,8 @@ map cartInit: Nat -> Nat;
 	initBool: Bool -> (Nat -> Bool);
 	initIsAtRefinery: Nat -> Bool;
 	initIsAtBay: Nat -> Bool;
+	noNext: Set(Rail);
+	noPrev: Set(Rail);
 
 var n: Nat;
 	b: Bool;
@@ -586,6 +588,9 @@ eqn
 	initIsAtBay(1) = false;
 	initIsAtBay(2) = false;
 	initIsAtBay(3) = false;
+	
+	noNext = {rail(4), rail(6), rail(8)};
+	noPrev = {rail(0)};
 
 map
 	isEmpty: List(Nat) -> Bool;
