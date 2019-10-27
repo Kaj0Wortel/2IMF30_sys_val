@@ -418,7 +418,6 @@ act
 	cartEmpty: Nat; % cartID
 	
 	% Internal actions.
-	pourCart;
 	refACart, cartACart, aCart: Nat # Nat; % refineryID, cartID
 	
 	%% Request actions.
