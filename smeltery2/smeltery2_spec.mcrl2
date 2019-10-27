@@ -532,10 +532,10 @@ init
 %	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone,
-				refineryDown, requestRefineryMaintenance, refineryUp,
-				cartDown, requestEmergencyCartMaintenance, cartUp,
-				cartRequestMaintenance, requestCartMaintenance,
-				furnaceDown, requestFurnaceMaintenance, furnaceUp,
+%				refineryDown, requestRefineryMaintenance, refineryUp,
+%				cartDown, requestEmergencyCartMaintenance, cartUp,
+%				cartRequestMaintenance, requestCartMaintenance,
+%				furnaceDown, requestFurnaceMaintenance, furnaceUp,
 				fillCart, pourFurnace, cartFull, cartIsFull,
 				moveCartForward, moveCartBackward, cartAtRail,
 				switchRail, setTargetTo,
@@ -564,6 +564,8 @@ map cartInit: Nat -> Nat;
 	initIsAtBay: Nat -> Bool;
 	noNext: Set(Rail);
 	noPrev: Set(Rail);
+	nextSet: Set(Rail);
+	prevSet: Set(Rail);
 
 var n: Nat;
 	b: Bool;
@@ -591,6 +593,8 @@ eqn
 	
 	noNext = {rail(4), rail(6), rail(8)};
 	noPrev = {rail(0)};
+	nextSet = {r: Rail | id(r) <= 8 && !(r in noNext)};
+	prevSet = {r: Rail | id(r) <= 8 && !(r in noPrev)};
 
 map
 	isEmpty: List(Nat) -> Bool;
