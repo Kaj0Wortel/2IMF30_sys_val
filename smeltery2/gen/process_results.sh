@@ -13,9 +13,11 @@ for f in ../properties/*; do
         if [[ $result == "true" ]]; then
             echo "true : $f" >> $output_file
             #rm -f "evidence/smeltery2_$f.evidence.lps"
-        else
+        elif [[ $result == "false" ]]; then
             echo "false: $f" >> $output_file
             lps2lts "evidence/smeltery2_$f.evidence.lps" "evidence/smeltery2_$f.evidence.lts"
+        else
+            echo "timeO: $f" >> $output_file
         fi
     fi
 done
