@@ -1,0 +1,19 @@
+TYPE: 4/4 [1111] BFS
+false: R1 No cart collision
+timeO: R2 Request maintain cart
+timeO: R3 If a refinery goes down eventually it will request maintenance
+timeO: R4 Leave if done
+timeO: R5 if a request for iron is made it eventually will be fulfilled
+false: R6 Filled cart will deliver
+false: R7 Open geq filled
+false: R8 Cart not filled if maintenance
+timeO: R9 Empty for maintenance2
+false: R10 Maintenance cart will visit bay
+false: R11 Repair if possible
+timeO: R12 Begin unloading
+true : R13 Dont move while loading
+timeO: R14 Dont move while unloading
+timeO: R15 Dont pour if no empty cart
+timeO: R16 No cart on active switch
+true : R17 no deadlock
+false: R18 No offroad
