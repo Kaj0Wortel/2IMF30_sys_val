@@ -2,8 +2,7 @@
 exists c: Nat . val(c < 4) &&
 exists r: Nat . val(r < 3) &&
 exists anyR: Rail . val(id(anyR) <= 8) &&
-exists allRail: Rail . val(id(allRail) <= 8) &&
-	[true* . (cartFull(c) . (!cartFull(c) && !cartEmpty(c))* . cartEmpty(c) . (!cartFull(c) && !cartEmpty(c))*)* .
+	[!cartFull(c)* . (cartFull(c) . (!cartFull(c) && !cartEmpty(c))* . cartEmpty(c) . (!cartFull(c) && !cartEmpty(c))*)* .
 		cartAtRail(c, get_refinery_rail(r)) . (!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, anyR))*]
 	<(!cartFull(c) && !cartEmpty(c) && !cartAtRail(c, anyR))* . unloadCart(c, true)> false
 
