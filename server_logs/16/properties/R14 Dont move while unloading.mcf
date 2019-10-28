@@ -1,0 +1,7 @@
+forall c: Nat . val(c < 4) => [true* . unloadCart(c, true) . (!unloadCart(c, true) && !unloadCart(c, false) && !moveCartForward(c) && !moveCartBackward(c))*]
+	<(!unloadCart(c, true) && !unloadCart(c, false) && !moveCartForward(c) && !moveCartBackward(c))* . unloadCart(c, false)> true
+
+%nu X(unloadingCart: Nat -> Bool = initBool(false)) .
+%	( forall c: Nat . val(c < 4) => forall b: Bool . [unloadCart(c, b)] ( X(unloadingCart[c -> b]) ) ) &&
+%	( forall c: Nat . val(c < 4) => [moveCartForward(c) || moveCartBackward(c)] ( val(!unloadingCart(c)) && X(unloadingCart) ) ) &&
+%	( forall c: Nat . val(c < 4) => [!unloadCart(c, true) && !unloadCart(c, false) && !moveCartForward(c) && !moveCartBackward(c)] ( X(unloadingCart) ) )

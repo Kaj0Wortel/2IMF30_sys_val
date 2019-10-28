@@ -9,7 +9,7 @@ exists c: Nat . val(c < 4) &&
 %	[!cartFull(c)* . (cartFull(c) . !cartEmpty(c)* . cartEmpty(c) . !cartFull(c)*)*]\
 	[true*]
 	[(cartFull(c) . !cartEmpty(c)* . cartRequestMaintenance(c)) +
-		(cartRequestMaintenance(c) . (!cartEmpty(c) && !requestCartMaintenance(c))* . !cartFull(c))]
+		(cartRequestMaintenance(c) . !requestCartMaintenance(c)* . cartFull(c))]
 	[(!cartEmpty(c) && !requestCartMaintenance(c))*]
 	<(!cartEmpty(c) && !requestCartMaintenance(c))*>
 	<requestCartMaintenance(c)> false

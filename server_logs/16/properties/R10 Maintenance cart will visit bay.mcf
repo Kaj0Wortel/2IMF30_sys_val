@@ -1,0 +1,6 @@
+nu X(needsMain: Nat -> Bool = initBool(false), isAtBay: Nat -> Bool = initIsAtBay) .
+	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] ( val(!needsMain(c)) && X(needsMain[c -> true], isAtBay) ) ) &&
+	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [cartAtRail(c, r)] ( X(needsMain, isAtBay[c -> is_at_repair_bay(r)]) ) ) &&
+	( forall c: Nat . val(c < 4) => [cartDown(c)] ( X(needsMain[c -> false], isAtBay) ) ) &&
+	( forall c: Nat . val(c < 4) => [cartUp(c)] ( val(!needsMain(c) || isAtBay(c)) && X(needsMain[c -> false], isAtBay) ) ) &&
+	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [!cartRequestMaintenance(c) && !cartAtRail(c, r) && !cartDown(c) && !cartUp(c)] ( X(needsMain, isAtBay) ) )
