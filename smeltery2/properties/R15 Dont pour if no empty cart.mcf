@@ -1,7 +1,7 @@
 nu X(isFull: FSet(Nat) = {}, isAtFurnace: FSet(Nat) = {}) .
 	( forall c: Nat . val(c < 4) => [cartAtRail(c, get_furnace_rail)] X(isFull, isAtFurnace + {c}) ) &&
 	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [cartAtRail(c, r)] (
-		(val( is_at_furnace(r)) => X(isFull, isAtFurnace + {c})) ||
+		(val( is_at_furnace(r)) => X(isFull, isAtFurnace + {c})) &&
 		(val(!is_at_furnace(r)) => X(isFull, isAtFurnace - {c}))
 	)) &&
 	( forall c: Nat . val(c < 4) => [cartFull(c)] X(isFull + {c}, isAtFurnace) ) &&

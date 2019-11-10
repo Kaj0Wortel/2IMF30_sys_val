@@ -1,7 +1,7 @@
 nu X(needsMain: FSet(Nat) = {}, isAtBay: FSet(Nat) = {0}) .
 	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] (val(!(c in needsMain)) && X(needsMain + {c}, isAtBay)) ) &&
 	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [cartAtRail(c, r)] (
-		(val( is_at_repair_bay(r)) => X(needsMain, isAtBay + {c})) ||
+		(val( is_at_repair_bay(r)) => X(needsMain, isAtBay + {c})) &&
 		(val(!is_at_repair_bay(r)) => X(needsMain, isAtBay - {c}))
 	)) &&
 	( forall c: Nat . val(c < 4) => [cartUp(c)] X(needsMain - {c}, isAtBay) ) &&
