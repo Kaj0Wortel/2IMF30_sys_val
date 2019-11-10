@@ -1,1 +1,0 @@
-forall r: Nat . val(r < 3) => [true* . requestIron(r) . (!requestDone(r))*] <true* . requestDone(r)> true

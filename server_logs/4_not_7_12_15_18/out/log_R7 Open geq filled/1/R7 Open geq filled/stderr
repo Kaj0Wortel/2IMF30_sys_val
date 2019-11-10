@@ -1,17 +1,0 @@
-+ lps2pbes -v '--formula=../properties/R7 Open geq filled.mcf' --counter-example smeltery2.lps 'smeltery2_R7 Open geq filled.pbes'
-Guessing output format: PBES in internal format
-reading LPS from file 'smeltery2.lps'...
-Loading LPS from smeltery2.lps.
-reading input from file '../properties/R7 Open geq filled.mcf'...
-type checking state formula...
-converting state formula and LPS to a PBES...
-writing PBES to file 'smeltery2_R7 Open geq filled.pbes'...
-Saving result in pbes format...
-+ pbessolve -v --strategy=1 --rewriter=jittyc '--evidence-file=evidence/smeltery2_R7 Open geq filled.evidence.lps' --search=depth-first --file=smeltery2.lps 'smeltery2_R7 Open geq filled.pbes'
-Guessing input format: PBES in internal format
-using '/usr/bin/mcrl2compilerewriter' to compile rewriter.
-generated ./jittyc_48665_36242016.cpp in 138ms, compiling...
-compiled in 46517ms, loading rewriter...
-rewriter loaded successfully.
-Generating parity game...
-Generated 1000 BES equationsGenerated 2000 BES equationsGenerated 3000 BES equationsGenerated 4000 BES equationsGenerated 5000 BES equationsGenerated 6000 BES equationsGenerated 7000 BES equationsGenerated 8000 BES equationsGenerated 9000 BES equationsGenerated 10000 BES equationsGenerated 11000 BES equationsGenerated 12000 BES equationsGenerated 13000 BES equationsGenerated 14000 BES equationsGenerated 15000 BES equationsGenerated 16000 BES equationsGenerated 17000 BES equationsGenerated 18000 BES equationsGenerated 19000 BES equationsGenerated 20000 BES equationsGenerated 21000 BES equationsGenerated 22000 BES equationsGenerated 23000 BES equationsGenerated 24000 BES equationsGenerated 25000 BES equationsGenerated 26000 BES equationsGenerated 27000 BES equationsGenerated 28000 BES equationsGenerated 29000 BES equationsGenerated 30000 BES equationsGenerated 31000 BES equationsGenerated 32000 BES equationsGenerated 33000 BES equationsGenerated 34000 BES equationsGenerated 35000 BES equationsGenerated 36000 BES equationsGenerated 37000 BES equationsGenerated 38000 BES equationsGenerated 39000 BES equationsGenerated 40000 BES equationsGenerated 41000 BES equationsGenerated 42000 BES equationsGenerated 43000 BES equationsGenerated 44000 BES equationsGenerated 45000 BES equationsGenerated 46000 BES equationsGenerated 47000 BES equations

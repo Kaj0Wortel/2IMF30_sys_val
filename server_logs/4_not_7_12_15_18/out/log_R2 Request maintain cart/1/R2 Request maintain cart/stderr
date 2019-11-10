@@ -1,24 +1,0 @@
-+ lps2pbes -v '--formula=../properties/R2 Request maintain cart.mcf' --counter-example smeltery2.lps 'smeltery2_R2 Request maintain cart.pbes'
-Guessing output format: PBES in internal format
-reading LPS from file 'smeltery2.lps'...
-Loading LPS from smeltery2.lps.
-reading input from file '../properties/R2 Request maintain cart.mcf'...
-type checking state formula...
-Warning: the modal formula contains an action cartDown that does not appear in the LPS!
-converting state formula and LPS to a PBES...
-writing PBES to file 'smeltery2_R2 Request maintain cart.pbes'...
-Saving result in pbes format...
-+ pbessolve -v --strategy=1 --rewriter=jittyc '--evidence-file=evidence/smeltery2_R2 Request maintain cart.evidence.lps' --search=depth-first --file=smeltery2.lps 'smeltery2_R2 Request maintain cart.pbes'
-Guessing input format: PBES in internal format
-using '/usr/bin/mcrl2compilerewriter' to compile rewriter.
-generated ./jittyc_48664_31476576.cpp in 114ms, compiling...
-compiled in 44015ms, loading rewriter...
-rewriter loaded successfully.
-Generating parity game...
-Generated 1000 BES equationsGenerated 2000 BES equationsGenerated 3000 BES equationsGenerated 4000 BES equationsGenerated 5000 BES equationsGenerated 6000 BES equationsGenerated 7000 BES equationsGenerated 8000 BES equationsGenerated 9000 BES equationsGenerated 10000 BES equationsGenerated 11000 BES equationsGenerated 12000 BES equationsGenerated 13000 BES equationsGenerated 14000 BES equationsGenerated 15000 BES equationsGenerated 16000 BES equationsGenerated 17000 BES equationsGenerated 18000 BES equationsGenerated 19000 BES equationsGenerated 20000 BES equationsGenerated 21000 BES equationsGenerated 22000 BES equationsGenerated 23000 BES equationsGenerated 24000 BES equationsGenerated 25000 BES equationsGenerated 26000 BES equationsGenerated 27000 BES equations
-Number of vertices in the structure graph: 82813
-Replacing free variables with dummy values.
-Solving parity game...
-Extracting evidence...
-Saved witness in evidence/smeltery2_R2 Request maintain cart.evidence.lps
-+ rm -f 'smeltery2_R2 Request maintain cart.pbes'
