@@ -1,7 +1,7 @@
-nu X(cartLocation: Nat -> Nat = cartInit, needsMain: Nat -> Bool = initBool(false)) . 
+nu X(cartLocation: Nat -> Nat = cartInit, needsMain: FSet(Nat) = {}) . 
 	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] ( X(cartLocation[c -> r], needsMain) ) ) &&
-	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] ( X(cartLocation, needsMain[c -> true]) ) ) &&
-	( forall c: Nat . val(c < 4) => [cartUp(c)] ( X(cartLocation, needsMain[c -> false]) ) ) &&
-	( [pourFurnace(true)] !(exists c: Nat . val(c < 4 && cartLocation(c) == 1 && needsMain(c))) && X(cartLocation, needsMain) ) &&
+	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] ( X(cartLocation, needsMain + {c}) ) ) &&
+	( forall c: Nat . val(c < 4) => [cartUp(c)] ( X(cartLocation, needsMain - {c}) ) ) &&
+	( [pourFurnace(true)] (exists c: Nat . val(c < 4 && cartLocation(c) == id(get_furnace_rail) && c in needsMain) && X(cartLocation, needsMain) ) ) &&
 	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) =>
-		[!cartAtRail(c, rail(r)) && !cartRequestMaintenance(c) && !cartUp(c) && !pourFurnace(true)] ( X(cartLocation, needsMain) ) )
+		[!cartAtRail(c, rail(r)) && !cartRequestMaintenance(c) && !cartUp(c)] ( X(cartLocation, needsMain) ) )

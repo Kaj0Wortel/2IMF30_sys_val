@@ -1,5 +1,16 @@
-nu X(isAtRefinery: Nat -> Bool = initIsAtRefinery, cartIsEmpty: Nat -> Bool = initBool(true)) .
-	( forall c: Nat . val(c < 4) => [cartEmpty(c)] ( X(isAtRefinery, cartIsEmpty[c -> true]) ) ) &&
-	( forall c: Nat . val(c < 4) => [cartFull(c)] ( X(isAtRefinery, cartIsEmpty[c -> false]) ) ) &&
-	( forall c: Nat . val(c < 4) => forall r: Rail . val(r <= rail(8)) => [cartAtRail(c, r)] ( val(!isAtRefinery(c) || cartIsEmpty(c)) && X(isAtRefinery[c -> is_at_refinery(r)], cartIsEmpty) ) ) &&
-	( forall c: Nat . val(c < 4) => forall r: Rail . val(r <= rail(8)) => [!cartEmpty(c) && !cartFull(c) && !cartAtRail(c, r)] X(isAtRefinery, cartIsEmpty) )
+nu X(isAtRefinery: FSet(Nat) = {1, 2, 3}, cartIsEmpty: FSet(Nat) = {0, 1, 2, 3}) . forall c: Nat . val(c < 4) => (
+	[cartEmpty(c)] X(isAtRefinery, cartIsEmpty + {c}) &&
+	[cartFull(c)] X(isAtRefinery, cartIsEmpty - {c}) &&
+	( forall r: Rail . val(id(r) <= 8) => ([cartAtRail(c, r)] (
+        (val(!is_at_refinery(r)) => (val(c in isAtRefinery => c in cartIsEmpty) && X(isAtRefinery - {c}, cartIsEmpty))) ||
+		(val(is_at_refinery(r)) => X(isAtRefinery + {c}, cartIsEmpty))
+	)) ) &&
+	( forall r: Rail . val(id(r) <= 8) => [!cartEmpty(c) && !cartFull(c) && !!cartAtRail(c, r)] X(isAtRefinery, cartIsEmpty) )
+)
+
+
+%nu X(isAtRefinery: Nat -> Bool = initIsAtRefinery, cartIsEmpty: Nat -> Bool = initBool(true)) .
+%	( forall c: Nat . val(c < 4) => [cartEmpty(c)] ( X(isAtRefinery, cartIsEmpty[c -> true]) ) ) &&
+%	( forall c: Nat . val(c < 4) => [cartFull(c)] ( X(isAtRefinery, cartIsEmpty[c -> false]) ) ) &&
+%	( forall c: Nat . val(c < 4) => forall r: Rail . val(r <= rail(8)) => [cartAtRail(c, r)] ( val(!isAtRefinery(c) || cartIsEmpty(c)) && X(isAtRefinery[c -> is_at_refinery(r)], cartIsEmpty) ) ) &&
+%	( forall c: Nat . val(c < 4) => forall r: Rail . val(r <= rail(8)) => [!cartEmpty(c) && !cartFull(c) && !cartAtRail(c, r)] X(isAtRefinery, cartIsEmpty) %)

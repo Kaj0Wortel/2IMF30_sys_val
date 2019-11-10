@@ -1,8 +1,15 @@
-exists c1: Nat . val(c1 < 4) &&
-exists c2: Nat . val(c2 < 4 && c1 != c2) &&
-exists r: Rail . val(id(r) <= 8) &&
-exists anyR: Rail . val(id(anyR) <= 8) &&
-	[true* . cartAtRail(c1, r) . (!cartAtRail(c1, anyR))*] <(!cartAtRail(c1, anyR))* . cartAtRail(c2, r)> false
+forall c1: Nat . val(c1 < 4) =>
+forall c2: Nat . val(c2 < 4) =>
+forall r: Rail . val(id(r) <= 8) =>
+forall r': Rail . val(id(r) <- 8) =>
+	[true* . cartAtRail(c1, r) . !cartAtRail(c1, r')* . cartAtRail(c2, r)] false
+
+
+%exists c1: Nat . val(c1 < 4) &&
+%exists c2: Nat . val(c2 < 4 && c1 != c2) &&
+%exists r: Rail . val(id(r) <= 8) &&
+%exists anyR: Rail . val(id(anyR) <= 8) &&
+%	[true* . cartAtRail(c1, r) . (!cartAtRail(c1, anyR))*] <(!cartAtRail(c1, anyR))* . cartAtRail(c2, r)> false
 
 
 %nu X(cartLoc: Nat -> Nat = cartInit, sw: Switch = init_switch) .

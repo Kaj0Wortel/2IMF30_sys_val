@@ -1,20 +1,5 @@
-
 forall c: Nat . val(c < 4) =>
-	[true* . cartAtRail(c, get_furnace_rail) . (!moveCartForward(c) && !moveCartBackward(c))* . pourFurnace(true) .
-		(!moveCartForward(c) && !moveCartBackward(c) && !pourFurnace(false))*]
-	<(!moveCartForward(c) && !moveCartBackward(c) && !pourFurnace(false))* . pourFurnace(false)> true
-
-
-%nu X(pouringFurnace: Bool = false, CartLocation: Nat -> Nat = cartInit) . 
-%	( forall pour: Bool . [pourFurnace(pour)] ( X(pour, CartLocation) ) ) &&
-%	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] ( X(pouringFurnace, CartLocation[c->r]) ) ) &&
-%	( forall c: Nat . val(c < 4) => [moveCartForward(c) || moveCartBackward(c)] val(CartLocation(c) != 1 || !pouringFurnace) ) &&
-%	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => forall pour: Bool .
-%		[!pourFurnace(pour) && !cartAtRail(c, rail(r)) && !moveCartBackward(c) && !moveCartForward(c)] ( X(pouringFurnace, CartLocation) ) )
-
-%nu X(pouringFurnace: Bool = false, cartOnFurnace: Nat -> Bool = initBool(false)) .
-%	( forall pour: Bool . [pourFurnace(pour)] ( (exists c: Nat . val(c < 4 && cartOnFurnace(c))) && X(pour, c%artOnFurnace) ) ) &&
-%	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] ( val(r != 1 || !pouringFurnace) &&
-%		X(pouringFurnace, cartOnFurnace[c -> (r == 1)]) ) ) &&
-%	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => forall pour: Bool . [!pourFurnace(pour) && !cartAtRail(c, rail(r))]
-%		( X(pouringFurnace, cartOnFurnace) ) )
+	[true* . cartAtRail(c, get_furnace_rail)]
+	[(!moveCartForward(c) && !moveCartBackward(c))*]
+	[pourFurnace(true) . !pourFurnace(false)*]
+	[moveCartForward(c) || moveCartBackward(c)] false

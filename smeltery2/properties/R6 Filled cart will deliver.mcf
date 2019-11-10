@@ -1,4 +1,6 @@
-forall c: Nat . val(c < 4) => [true* . cartFull(c) . ((!cartEmpty(c) && !cartFull(c)))*] <(!cartEmpty(c) && !cartFull(c))* . cartEmpty(c)> true
+forall c: Nat . val(c < 4) =>
+	[true* . cartFull(c) . true*]
+	<true* . cartEmpty(c)> true
 
 %nu X(cartIsEmpty: Nat -> Bool = initBool(true)) .
 %	( forall c: Nat . val(c < 4) => [cartEmpty(c)] val(!cartIsEmpty(c)) && X(cartIsEmpty[c -> true]) ) &&

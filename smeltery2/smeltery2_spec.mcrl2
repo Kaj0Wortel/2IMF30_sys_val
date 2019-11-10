@@ -38,7 +38,6 @@ map
 	get_route: Rail # Rail -> List(Rail); % Pos # Dest -> Route
 	
 	get_switch_rail: Rail;
-	get_pos: Switch -> Nat;
 	get_switch_for_target: Rail -> Switch;
 	
 	init_switch: Switch;
@@ -267,7 +266,7 @@ eqn
 	
 	init_switch = switch(0);
 	get_switch_rail = rail(2);
-	get_pos(switch(n)) = n;
+	position(switch(n)) = n;
 
 
 var s, s0, s1, s2: Nat;
@@ -432,8 +431,6 @@ act
 	cartAtRail: Nat # Rail; % cartID
 	setTargetTo: Nat # Rail; % cartID
 	switchRail: Nat;
-	
-	tmp;
 
 
 proc
@@ -530,15 +527,14 @@ init
 	hide ({ aCart, cartIsFull, setTargetTo, fillCart },
 %	hide({ tmp },
 		allow ({
-				requestIron, aCart, unloadCart, cartEmpty, requestDone,
-				refineryDown, requestRefineryMaintenance, refineryUp,
-%				cartDown, requestEmergencyCartMaintenance, cartUp,
-%				cartRequestMaintenance, requestCartMaintenance,
-				furnaceDown, requestFurnaceMaintenance, furnaceUp,
-				fillCart, pourFurnace, cartFull, cartIsFull,
-				moveCartForward, moveCartBackward, cartAtRail,
-				switchRail, setTargetTo,
-				tmp
+				requestIron, aCart, unloadCart, cartEmpty, requestDone, %Request actions
+				refineryDown, requestRefineryMaintenance, refineryUp,   %[X]Refinery Failure
+				cartDown, requestEmergencyCartMaintenance, cartUp,      %[X]Cart Failure
+				cartRequestMaintenance, requestCartMaintenance, cartUp,         %[X]Cart Maintenance
+				furnaceDown, requestFurnaceMaintenance, furnaceUp,      %[X]Furnace Failure
+				fillCart, pourFurnace, cartFull, cartIsFull,            %Filling Actions
+				moveCartForward, moveCartBackward, cartAtRail,          %Moving Actions
+				switchRail, setTargetTo                              %Rail Switch Actions
 			},
 			comm ({
 					cartFillCart | furnFillCart -> fillCart,
