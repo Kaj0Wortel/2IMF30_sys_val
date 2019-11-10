@@ -1,4 +1,8 @@
-mu X(needsMain: FSet(Nat) = {}) .
-	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] X(needsMain + {c}) ) &&
-	( forall c: Nat . val(c < 4) => [cartUp(c)] X(needsMain - {c}) ) &&
-	( forall c: Nat . val(c < 4) => [!requestCartMaintenance(c) && !cartUp(c)] X(needsMain) )
+mu X(needsMain: FSet(Nat) = {}, isAtBay: FSet(Nat) = {0}) .
+	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [cartAtRail(c, r)] (
+		(val( is_at_repair_bay(r)) => X(needsMain, isAtBay + {c})) &&
+		(val(!is_at_repair_bay(r)) => X(needsMain, isAtBay - {c}))
+	)) &&
+	( forall c: Nat . val(c < 4) => [cartRequestMaintenance(c)] X(needsMain + {c}, isAtBay) ) &&
+	( forall c: Nat . val(c < 4) => [cartUp(c)] X(needsMain - {c}, isAtBay) ) &&
+	( forall c: Nat . val(c < 4) => [!requestCartMaintenance(c) && !cartUp(c)] X(needsMain, isAtBay) )
