@@ -528,13 +528,13 @@ init
 %	hide({ tmp },
 		allow ({
 				requestIron, aCart, unloadCart, cartEmpty, requestDone, %Request actions
-				refineryDown, requestRefineryMaintenance, refineryUp,   %[X]Refinery Failure
-				cartDown, requestEmergencyCartMaintenance, cartUp,      %[X]Cart Failure
+%				refineryDown, requestRefineryMaintenance, refineryUp,   %[X]Refinery Failure
+%				cartDown, requestEmergencyCartMaintenance, cartUp,      %[X]Cart Failure
 				cartRequestMaintenance, requestCartMaintenance, cartUp,         %[X]Cart Maintenance
-				furnaceDown, requestFurnaceMaintenance, furnaceUp,      %[X]Furnace Failure
+%				furnaceDown, requestFurnaceMaintenance, furnaceUp,      %[X]Furnace Failure
 				fillCart, pourFurnace, cartFull, cartIsFull,            %Filling Actions
 				moveCartForward, moveCartBackward, cartAtRail,          %Moving Actions
-				switchRail, setTargetTo                              %Rail Switch Actions
+				switchRail, setTargetTo                                 %Rail Switch Actions
 			},
 			comm ({
 					cartFillCart | furnFillCart -> fillCart,

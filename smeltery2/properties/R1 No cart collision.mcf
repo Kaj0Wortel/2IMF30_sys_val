@@ -3,37 +3,3 @@ forall c2: Nat . val(c2 < 4) =>
 forall r: Rail . val(id(r) <= 8) =>
 forall r': Rail . val(id(r) <- 8) =>
 	[true* . cartAtRail(c1, r) . !cartAtRail(c1, r')* . cartAtRail(c2, r)] false
-
-
-%exists c1: Nat . val(c1 < 4) &&
-%exists c2: Nat . val(c2 < 4 && c1 != c2) &&
-%exists r: Rail . val(id(r) <= 8) &&
-%exists anyR: Rail . val(id(anyR) <= 8) &&
-%	[true* . cartAtRail(c1, r) . (!cartAtRail(c1, anyR))*] <(!cartAtRail(c1, anyR))* . cartAtRail(c2, r)> false
-
-
-%nu X(cartLoc: Nat -> Nat = cartInit, sw: Switch = init_switch) .
-%	( forall s: Nat . val(s < 3) => [switchRail(s)] ( X(cartLoc, switch(s)) ) ) &&
-%	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] ( (!exists other: Nat . val(other < 4 && c != other) =>
-%		val(cartLoc(c) == cartLoc(other))) && X(cartLoc[c -> r], sw) ) ) &&
-%	( forall s: Nat . val(s < 3) => forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) => [!switchRail(s) && !cartAtRail(c, r)] X(cartLoc, sw) )
-	
-
-% nu X(sw: Switch = init_switch, curCartLoc: Nat -> Nat = cartInit, nextCartLoc: Nat -> Nat = cartInit) .
-%	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) => [cartAtRail(c, rail(r))] X(sw, curCartLoc[c -> r], nextCartLoc) ) &&
-%	( forall c: Nat . val(c < 4) => forall other: Nat . val(other < 4 && other != c) => [moveCartForward(c)]
-%		val(allow_next(rail(curCartLoc(c)), sw)) => (
-%			val(curCartLoc(other) != id(next(rail(curCartLoc(c)), sw))) &&
-%			val(nextCartLoc(other) != id(next(rail(curCartLoc(c)), sw))) &&
-%			X(sw, curCartLoc, nextCartLoc[c -> id(next(rail(curCartLoc(c)), sw))])
-%		)
-%	) &&
-%	( forall c: Nat . val(c < 4) => forall other: Nat . val(other < 4 && other != c) => [moveCartBackward(c)]
-%		val(allow_prev(rail(curCartLoc(c)))) => (
-%			val(curCartLoc(other) != id(prev(rail(curCartLoc(c))))) &&
-%			val(nextCartLoc(other) != id(prev(rail(curCartLoc(c))))) &&
-%			X(sw, curCartLoc, nextCartLoc[c -> id(prev(rail(curCartLoc(c))))])
-%		)
-%	) &&
-%	( forall c: Nat . val(c < 4) => forall r: Rail . val(id(r) <= 8) =>
-%		[!cartAtRail(c, r) && !moveCartForward(c) && !moveCartBackward(c)] X(sw, curCartLoc, nextCartLoc) )

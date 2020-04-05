@@ -4,4 +4,4 @@ nu X(cartLocation: Nat -> Nat = cartInit, needsMain: FSet(Nat) = {}) .
 	( forall c: Nat . val(c < 4) => [cartUp(c)] ( X(cartLocation, needsMain - {c}) ) ) &&
 	( [pourFurnace(true)] (exists c: Nat . val(c < 4 && cartLocation(c) == id(get_furnace_rail) && c in needsMain) && X(cartLocation, needsMain) ) ) &&
 	( forall c: Nat . val(c < 4) => forall r: Nat . val(r <= 8) =>
-		[!cartAtRail(c, rail(r)) && !cartRequestMaintenance(c) && !cartUp(c)] ( X(cartLocation, needsMain) ) )
+		[!cartAtRail(c, rail(r)) && !cartRequestMaintenance(c) && !cartUp(c)] X(cartLocation, needsMain) )

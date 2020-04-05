@@ -1,1 +1,3 @@
-forall c: Nat . val(c < 4) => [true* . cartDown(c) . !requestEmergencyCartMaintenance(c)*] <true* . requestEmergencyCartMaintenance(c)> true
+forall c: Nat . val(c < 4) =>
+	[true* . cartDown(c) . !requestEmergencyCartMaintenance(c)*]
+	<true* . requestEmergencyCartMaintenance(c)> true

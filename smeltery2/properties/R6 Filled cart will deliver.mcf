@@ -1,8 +1,3 @@
 forall c: Nat . val(c < 4) =>
 	[true* . cartFull(c) . true*]
 	<true* . cartEmpty(c)> true
-
-%nu X(cartIsEmpty: Nat -> Bool = initBool(true)) .
-%	( forall c: Nat . val(c < 4) => [cartEmpty(c)] val(!cartIsEmpty(c)) && X(cartIsEmpty[c -> true]) ) &&
-%	( forall c: Nat . val(c < 4) => [cartFull(c)] val(cartIsEmpty(c)) && X(cartIsEmpty[c -> false]) ) &&
-%	( forall c: Nat . val(c < 4) => forall r: Nat . val(r < 3) => [!(cartEmpty(c) || cartFull(c))] X(cartIsEmpty))
